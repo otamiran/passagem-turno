@@ -150,7 +150,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     <button class="tab-btn" onclick="showPage('hist',this)">↺ Histórico <span class="tab-badge" id="hist-count">0</span></button>
   </div>
 </nav>
- 
+
 <!-- NOVO -->
 <div class="page active" id="page-novo">
 <div class="main">
@@ -218,7 +218,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <button class="btn btn-accent" onclick="saveReport()" style="flex:1.5;justify-content:center">💾 Salvar no Histórico</button>
 </div>
 </div>
- 
+
 <!-- ABERTOS -->
 <div class="page" id="page-abertos">
 <div class="main">
@@ -226,12 +226,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
   <div id="open-list"></div>
 </div>
 </div>
- 
+
 <!-- HISTÓRICO -->
 <div class="page" id="page-hist">
 <div class="main"><div id="hist-list"></div></div>
 </div>
- 
+
 <!-- VIEW MODAL -->
 <div class="modal-bg" id="view-modal">
   <div class="modal">
@@ -254,7 +254,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
   </div>
 </div>
- 
+
 <!-- CONFIRM MODAL -->
 <div class="modal-bg" id="confirm-modal">
   <div class="modal" style="max-width:340px">
@@ -268,13 +268,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14
     </div>
   </div>
 </div>
- 
+
 <div class="toast" id="toast"></div>
- 
+
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,orderBy,query,onSnapshot}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
- 
+
 const firebaseConfig={apiKey:"AIzaSyCFUBsmpZkK4SzZFinK89nrl1dj28VCAYY",authDomain:"passagem-turno-3c668.firebaseapp.com",projectId:"passagem-turno-3c668",storageBucket:"passagem-turno-3c668.firebasestorage.app",messagingSenderId:"942055408398",appId:"1:942055408398:web:05c846a291f2edf91e0d5f"};
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
@@ -285,11 +285,11 @@ const TIPOS=['Corretiva','Paliativa','Preventiva','Substituição'];
 const STATUS=['Concluída','Em andamento','Pendente'];
 const SCLS={'Concluída':'sc','Em andamento':'sa','Pendente':'sp'};
 const SEMI={'Concluída':'✅','Em andamento':'🔄','Pendente':'⏳'};
- 
+
 let ic=0,editId=null,editCol=null,currentId=null,nome='',openCache=[],histCache=[],confirmCb=null;
- 
+
 function setStatus(t,m){const e=document.getElementById('db-status');e.className='status-bar status-'+t;e.innerHTML=`<span class="dot-anim"></span> ${m}`;}
- 
+
 window.salvarNome=function(){
   const v=document.getElementById('f-nome').value.trim();
   if(!v){toast('Informe seu nome.',1);return;}
@@ -297,11 +297,11 @@ window.salvarNome=function(){
   document.getElementById('name-banner').innerHTML=`<div class="name-banner"><span class="dot-anim"></span> Logado como <strong>${v}</strong></div>`;
   toast('Nome salvo: '+v);
 };
- 
+
 window.selT=function(g,b){document.querySelectorAll('#'+g+' .tbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');updatePreview();};
 window.selOT=function(b){b.closest('.tgroup').querySelectorAll('.tbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');updatePreview();};
 function getT(g){const a=document.querySelector('#'+g+' .tbtn.active');return a?a.textContent.trim():null;}
- 
+
 window.addItem=function(tipo,data){
   ic++;const i=ic;const d=data||{};
   const div=document.createElement('div');
@@ -321,11 +321,11 @@ window.addItem=function(tipo,data){
   document.getElementById('items-list').appendChild(div);
   updSum(i);
 };
- 
+
 window.toggleItem=function(i){document.getElementById('item-'+i)?.classList.toggle('collapsed');};
 window.confirmItem=function(i,e){e.stopPropagation();const c=document.getElementById('item-'+i);c?.classList.add('confirmed','collapsed');updSum(i);updatePreview();};
 window.cancelItem=function(i,e){e.stopPropagation();document.getElementById('item-'+i)?.remove();updatePreview();};
- 
+
 function updSum(i){
   const c=document.getElementById('item-'+i);if(!c)return;
   const t=c.dataset.tipo;
@@ -342,7 +342,7 @@ function updSum(i){
     d.className='item-status-dot '+(m[st]||'dot-gray');
   }
 }
- 
+
 function occFields(i,d){return`
   <div><div class="sec-lbl" style="margin-bottom:8px">Equipamento</div>
     <div class="fgroup"><label>Descrição</label>
@@ -371,7 +371,7 @@ function occFields(i,d){return`
       <textarea id="o${i}-sol" rows="2" placeholder="Como foi resolvido..." oninput="updatePreview()">${d.solucao||''}</textarea>
     </div>
   </div>`;}
- 
+
 function ativFields(i,d){return`
   <div><div class="sec-lbl" style="margin-bottom:8px">Atividade</div>
     <div class="fgroup"><label>Equipamento</label>
@@ -384,7 +384,7 @@ function ativFields(i,d){return`
   <div class="fgroup"><label>Status</label>
     <div class="tgroup" id="a${i}-status">${STATUS.map(s=>`<button class="tbtn ${SCLS[s]}${d.status===s?' active':''}" onclick="selOT(this);updSum(${i})">${s}</button>`).join('')}</div>
   </div>`;}
- 
+
 function getItems(){
   return[...document.querySelectorAll('.item-card')].map(el=>{
     const i=el.id.replace('item-','');const t=el.dataset.tipo;
@@ -392,9 +392,9 @@ function getItems(){
     return{tipo:t,autor:nome||null,equip:(document.getElementById('a'+i+'-eq')?.value||'').trim(),desc:(document.getElementById('a'+i+'-desc')?.value||'').trim(),status:getT('a'+i+'-status')};
   });
 }
- 
+
 function hdr(d){const df=d.data?new Date(d.data+'T12:00').toLocaleDateString('pt-BR'):'—';return`Setor: ${d.setor||'—'}  |  Data: ${df}  |  Turno: ${d.turno||'—'}`;}
- 
+
 // Texto para CÓPIA — sem autor
 function buildOcc(d){
   const oc=(d.itens||[]).filter(x=>x.tipo==='occ');
@@ -411,7 +411,7 @@ function buildAtiv(d){
   t.push('─────────────────────');return t.join('\n');
 }
 function buildFull(d){return buildOcc(d)+'\n\n'+buildAtiv(d);}
- 
+
 // Preview interno — COM autor (só na tela, não copiado)
 function prevOcc(d){
   const oc=(d.itens||[]).filter(x=>x.tipo==='occ');
@@ -427,17 +427,17 @@ function prevAtiv(d){
   av.forEach((a,i)=>{t.push(`\n── #${i+1}${a.autor?' ['+a.autor+']':''} ──`);t.push(`Equip.: ${a.equip||'—'} | ${a.desc||'—'}`);t.push(`Status: ${SEMI[a.status]||''} ${a.status||'—'}`);});
   return t.join('\n');
 }
- 
+
 window.updatePreview=function(){
   const d=getFormData();
   document.getElementById('f-prev-occ').textContent=prevOcc(d);
   document.getElementById('f-prev-ativ').textContent=prevAtiv(d);
   document.getElementById('f-prev-full').textContent=prevOcc(d)+'\n\n'+prevAtiv(d);
 };
- 
+
 function getSetor(){const n=document.getElementById('f-setor-nome').value.trim();if(n)return n;const s=document.getElementById('f-setor-sel').value;if(s){const r=openCache.find(x=>x.id===s);return r?r.setor||'':'';}return'';}
 function getFormData(){return{data:document.getElementById('f-data').value,turno:getT('f-turno'),setor:getSetor(),itens:getItems()};}
- 
+
 function loadFormData(d,openId){
   document.getElementById('f-data').value=d.data||'';
   document.querySelectorAll('#f-turno .tbtn').forEach(b=>b.classList.toggle('active',b.textContent.trim()===d.turno));
@@ -447,13 +447,13 @@ function loadFormData(d,openId){
   (d.itens||[]).forEach(it=>{addItem(it.tipo,it);const c=document.getElementById('item-'+ic);if(c)c.classList.add('confirmed','collapsed');});
   updatePreview();
 }
- 
+
 window.onSetorSel=function(){
   const s=document.getElementById('f-setor-sel').value;
   if(s){document.getElementById('f-setor-nome').value='';const r=openCache.find(x=>x.id===s);if(r)loadFormData(r,s);}
   updatePreview();
 };
- 
+
 window.saveReport=async function(){
   const d=getFormData();
   if(!d.data&&!d.turno&&!d.setor&&!d.itens.length){toast('Preencha ao menos um campo.',1);return;}
@@ -470,7 +470,7 @@ window.saveReport=async function(){
     }catch(e){setStatus('err','Erro: '+e.message);toast('Erro.',1);}
   });
 };
- 
+
 window.saveAsOpen=async function(){
   const d=getFormData();
   if(!nome){toast('Informe seu nome.',1);return;}
@@ -484,7 +484,7 @@ window.saveAsOpen=async function(){
     setStatus('ok','Conectado');toast('✓ Relatório mantido aberto!');clearForm(true);
   }catch(e){setStatus('err','Erro: '+e.message);toast('Erro.',1);}
 };
- 
+
 function startRealtime(){
   onSnapshot(query(collection(db,CO),orderBy('criadoEm','desc')),snap=>{
     openCache=snap.docs.map(d=>({id:d.id,...d.data()}));
@@ -500,13 +500,13 @@ function startRealtime(){
     setStatus('ok',`Conectado — ${openCache.length} aberto(s), ${histCache.length} no histórico`);
   },e=>setStatus('err','Erro: '+e.message));
 }
- 
+
 function refreshSel(){
   const sel=document.getElementById('f-setor-sel');const cur=sel.value;
   sel.innerHTML='<option value="">— Carregar relatório aberto —</option>';
   openCache.forEach(r=>{const o=document.createElement('option');o.value=r.id;const df=r.data?new Date(r.data+'T12:00').toLocaleDateString('pt-BR'):'';o.textContent=`${r.setor||'Sem setor'} — ${df} ${r.turno||''}`;if(r.id===cur)o.selected=true;sel.appendChild(o);});
 }
- 
+
 function renderOpen(){
   const el=document.getElementById('open-list');
   if(!openCache.length){el.innerHTML=`<div class="empty"><div class="icon">◉</div><p>Nenhum relatório aberto.</p><p style="margin-top:5px;font-size:11px;color:var(--muted)">Crie um e clique "Manter Aberto".</p></div>`;return;}
@@ -527,7 +527,7 @@ function renderOpen(){
       </div></div>`;
   }).join('');
 }
- 
+
 window.contribuir=function(id){const r=openCache.find(x=>x.id===id);if(!r)return;loadFormData(r,id);showPage('novo',document.querySelector('.tab-btn'));toast('Carregado para contribuição.');};
 window.fecharOpen=function(id){
   const r=openCache.find(x=>x.id===id);if(!r)return;
@@ -543,7 +543,7 @@ window.viewOpen=function(id){
   document.getElementById('modal-edit-btn').style.display='none';document.getElementById('modal-del-btn').style.display='none';
   resetMitabs();document.getElementById('view-modal').classList.add('open');
 };
- 
+
 function renderHistory(){
   const el=document.getElementById('hist-list');
   if(!histCache.length){el.innerHTML=`<div class="empty"><div class="icon">📋</div><p>Nenhum relatório no histórico.</p></div>`;return;}
@@ -558,7 +558,7 @@ function renderHistory(){
     </div>`;
   }).join('');
 }
- 
+
 window.viewHist=function(id){
   const r=histCache.find(x=>x.id===id);if(!r)return;
   currentId=id;
@@ -570,16 +570,16 @@ window.viewHist=function(id){
 window.editReport=function(id){closeModal('view-modal');const r=histCache.find(x=>x.id===id);if(!r)return;editId=id;editCol=CH;loadFormData(r);showPage('novo',document.querySelector('.tab-btn'));document.getElementById('edit-indicator').style.display='flex';toast('Carregado para edição.');};
 window.editHist=function(id){closeModal('view-modal');const r=histCache.find(x=>x.id===id);if(!r)return;editId=id;editCol=CH;loadFormData(r);showPage('novo',document.querySelector('.tab-btn'));document.getElementById('edit-indicator').style.display='flex';toast('Carregado para edição.');};
 window.deleteHist=function(id){askConfirm('Excluir este relatório?',async()=>{try{await deleteDoc(doc(db,CH,id));toast('Excluído.');}catch(e){toast('Erro.',1);}});};
- 
+
 function resetMitabs(){document.querySelectorAll('.mitab').forEach((b,i)=>b.classList.toggle('active',i===0));document.querySelectorAll('.mitab-panel').forEach((p,i)=>p.classList.toggle('active',i===0));}
 window.copyActiveModal=function(){const a=document.querySelector('.mitab-panel.active .modal-preview');if(a)navigator.clipboard.writeText(a.textContent).then(()=>toast('✓ Copiado!')).catch(()=>toast('Erro',1));};
 window.closeModal=function(id){document.getElementById(id).classList.remove('open');};
 window.switchItab=function(btn,pid){btn.closest('.card-bd').querySelectorAll('.itab').forEach(b=>b.classList.remove('active'));btn.closest('.card-bd').querySelectorAll('.itab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(pid).classList.add('active');};
 window.switchMitab=function(btn,pid){btn.closest('.modal-body').querySelectorAll('.mitab').forEach(b=>b.classList.remove('active'));btn.closest('.modal-body').querySelectorAll('.mitab-panel').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById(pid).classList.add('active');};
 window.copyActivePreview=function(){const a=document.querySelector('.itab-panel.active .preview-box');if(a)navigator.clipboard.writeText(a.textContent).then(()=>toast('✓ Copiado!')).catch(()=>toast('Erro',1));};
- 
+
 function askConfirm(msg,cb){confirmCb=cb;document.getElementById('confirm-msg').textContent=msg;document.getElementById('confirm-ok-btn').onclick=async()=>{closeModal('confirm-modal');if(confirmCb)await confirmCb();};document.getElementById('confirm-modal').classList.add('open');}
- 
+
 window.clearForm=function(silent){
   if(!silent&&!confirm('Limpar formulário?'))return;
   editId=null;editCol=null;document.getElementById('edit-indicator').style.display='none';
@@ -588,16 +588,16 @@ window.clearForm=function(silent){
   document.getElementById('f-setor-sel').value='';document.getElementById('f-setor-nome').value='';
   document.getElementById('items-list').innerHTML='';ic=0;updatePreview();
 };
- 
+
 window.showPage=function(id,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');if(btn)btn.classList.add('active');
   if(id==='abertos')renderOpen();if(id==='hist')renderHistory();
 };
- 
+
 function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');void t.offsetWidth;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
- 
+
 document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
 document.getElementById('f-data').addEventListener('input',updatePreview);
 try{const n=localStorage.getItem('turno_nome');if(n){nome=n;document.getElementById('f-nome').value=n;document.getElementById('name-banner').innerHTML=`<div class="name-banner"><span class="dot-anim"></span> Logado como <strong>${n}</strong></div>`;}}catch(e){}
