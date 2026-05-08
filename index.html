@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f0a500">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Turno">
+<link rel="manifest" href="manifest.json">
+<title>Passagem de Turno — Manutenção</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117; --surface:#181c25; --surface2:#1e2330;
+  --border:#2a3040; --border2:#3a4560;
+  --accent:#f0a500; --accent2:#e05c2a; --blue:#4a90e2;
+  --text:#d4dbe8; --muted:#5c6680; --label:#8a95aa;
+  --green:#2ecc71; --red:#e05050;
+  --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+  --r:4px; --rl:6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh}
+
+/* ── NAV ── */
+.nav{background:var(--surface);border-bottom:2px solid var(--accent);display:flex;align-items:stretch;position:sticky;top:0;z-index:200}
+.nav-brand{padding:12px 16px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--border)}
+.nav-hex{width:26px;height:26px;background:var(--accent);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
+.nav-title{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:2px;color:var(--accent);text-transform:uppercase}
+.nav-tabs{display:flex;flex:1}
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1.5px;padding:0 14px;text-transform:uppercase;transition:all .15s;margin-bottom:-2px;display:flex;align-items:center;gap:5px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{border-bottom-color:var(--accent);color:var(--accent)}
+.tab-badge{background:var(--accent2);color:#fff;border-radius:10px;font-size:9px;padding:1px 5px}
+
+/* ── PAGES ── */
+.page{display:none}.page.active{display:block}
+.main{max-width:760px;margin:0 auto;padding:22px 16px 90px;display:flex;flex-direction:column;gap:16px}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.card-hd{background:var(--surface2);padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-hd-lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.card-bd{padding:14px;display:flex;flex-direction:column;gap:12px}
+
+/* ── FORM FIELDS ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--label);font-weight:600}
+.fgroup input,.fgroup textarea{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--sans);font-size:13px;padding:8px 11px;outline:none;transition:border-color .15s;width:100%}
+.fgroup input:focus,.fgroup textarea:focus{border-color:var(--accent)}
+.fgroup textarea{resize:vertical;line-height:1.5}
+.fgroup input[type=date]{font-family:var(--mono)}
+
+/* ── TOGGLES ── */
+.tgroup{display:flex;gap:5px;flex-wrap:wrap}
+.tbtn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:10px;padding:5px 11px;transition:all .15s;user-select:none}
+.tbtn:hover{border-color:var(--accent);color:var(--text)}
+.tbtn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.tbtn.status-concluida.active{background:var(--green);border-color:var(--green);color:#000}
+.tbtn.status-andamento.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.tbtn.status-pendente.active{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ── ADD BUTTONS ── */
+.add-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.add-btn{border:1px dashed var(--border2);border-radius:var(--rl);padding:13px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:5px}
+.add-btn-occ{color:var(--accent2);border-color:rgba(224,92,42,.3)}
+.add-btn-occ:hover{border-color:var(--accent2);background:rgba(224,92,42,.07)}
+.add-btn-ativ{color:var(--blue);border-color:rgba(74,144,226,.3)}
+.add-btn-ativ:hover{border-color:var(--blue);background:rgba(74,144,226,.07)}
+.add-icon{font-size:18px}
+
+/* ── ITEM CARDS (ocorrência / atividade) ── */
+.item-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.item-card.tipo-occ{border-left:3px solid var(--accent2)}
+.item-card.tipo-ativ{border-left:3px solid var(--blue)}
+.item-hd{background:var(--surface2);padding:9px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.item-tipo-badge{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 8px;border-radius:2px;letter-spacing:1px}
+.badge-occ{background:rgba(224,92,42,.2);color:var(--accent2);border:1px solid rgba(224,92,42,.3)}
+.badge-ativ{background:rgba(74,144,226,.2);color:var(--blue);border:1px solid rgba(74,144,226,.3)}
+.item-num{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--label)}
+.item-author{font-size:11px;color:var(--muted)}
+.item-bd{padding:14px;display:flex;flex-direction:column;gap:12px}
+.sec-lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600;border-bottom:1px solid var(--border);padding-bottom:5px}
+.divider{height:1px;background:var(--border)}
+
+/* ── INNER TABS (prévia) ── */
+.inner-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:-14px -14px 0}
+.itab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:10px 16px;text-transform:uppercase;transition:all .15s;margin-bottom:-1px}
+.itab.active{border-bottom-color:var(--accent);color:var(--accent)}
+.itab-panel{display:none;padding-top:14px}.itab-panel.active{display:block}
+
+/* ── PREVIEW ── */
+.preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:11px;line-height:1.7;padding:12px;white-space:pre-wrap;word-break:break-word;min-height:60px;max-height:240px;overflow-y:auto}
+
+/* ── BUTTONS ── */
+.btn{border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1.5px;padding:8px 16px;text-transform:uppercase;transition:all .15s;border:1px solid var(--border);background:var(--surface2);color:var(--text);display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--border2)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#000}
+.btn-accent:hover{background:#ffc030}
+.btn-green{background:rgba(46,204,113,.12);border-color:var(--green);color:var(--green)}
+.btn-green:hover{background:rgba(46,204,113,.22)}
+.btn-red{background:rgba(224,80,80,.1);border-color:var(--red);color:var(--red)}
+.btn-red:hover{background:rgba(224,80,80,.2)}
+.btn-full{width:100%;justify-content:center;padding:11px;font-size:11px}
+
+/* ── SAVE BAR ── */
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border2);padding:10px 16px;display:flex;gap:8px;z-index:150}
+.save-bar .btn{flex:1;justify-content:center}
+
+/* ── HISTORY ── */
+.hist-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:10px}
+.hist-hd{padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s}
+.hist-hd:hover{background:var(--surface2)}
+.hist-date{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--accent)}
+.hist-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.hist-tags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
+.tag{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:2px}
+.tag-turno{background:var(--surface2);border:1px solid var(--border2);color:var(--label)}
+.tag-occ{background:rgba(224,92,42,.15);border:1px solid rgba(224,92,42,.3);color:var(--accent2)}
+.tag-ativ{background:rgba(74,144,226,.15);border:1px solid rgba(74,144,226,.3);color:var(--blue)}
+.hist-actions{padding:9px 14px;border-top:1px solid var(--border);background:var(--surface2);display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── STATUS BAR ── */
+.status-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);font-size:11px;font-family:var(--mono)}
+.status-ok{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--green)}
+.status-err{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);color:var(--red)}
+.status-loading{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);color:var(--accent)}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── NAME BANNER ── */
+.name-banner{background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--accent);font-family:var(--mono);display:flex;align-items:center;gap:8px}
+
+/* ── EDIT BADGE ── */
+.edit-badge{background:rgba(240,165,0,.12);border:1px solid rgba(240,165,0,.25);border-radius:var(--r);padding:7px 12px;font-family:var(--mono);font-size:10px;color:var(--accent);display:flex;align-items:center;gap:8px}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;padding:16px;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border2);border-top:2px solid var(--accent);border-radius:var(--rl);max-width:580px;width:100%;max-height:84vh;overflow-y:auto}
+.modal-hd{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center}
+.modal-hd h2{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);flex:1}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:14px;display:flex;flex-direction:column;gap:12px}
+.modal-inner-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin:-14px -14px 0}
+.mitab{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:10px 14px;text-transform:uppercase;transition:all .15s;margin-bottom:-1px}
+.mitab.active{border-bottom-color:var(--accent);color:var(--accent)}
+.mitab-panel{display:none;padding-top:14px}.mitab-panel.active{display:block}
+.modal-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:11px;line-height:1.7;padding:12px;white-space:pre-wrap;word-break:break-word;max-height:36vh;overflow-y:auto}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty .icon{font-size:36px;margin-bottom:12px}
+.empty p{font-size:12px;font-family:var(--mono)}
+
+/* ── CONFIRM ── */
+.confirm-body{text-align:center;padding:20px 14px}
+.confirm-body p{color:var(--label);font-size:13px;line-height:1.6;margin-bottom:18px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:68px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--green);color:#000;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1px;padding:8px 18px;border-radius:var(--r);transition:transform .25s ease;pointer-events:none;z-index:400;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red);color:#fff}
+
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.nav-title{display:none}.tab-btn{padding:0 10px}.add-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-hex"></div>
+    <span class="nav-title">Turno</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showPage('form',this)">✦ Novo</button>
+    <button class="tab-btn" id="hist-tab" onclick="showPage('hist',this)">↺ Histórico <span class="tab-badge" id="hist-count">0</span></button>
+  </div>
+</nav>
+
+<!-- ══════════ FORM PAGE ══════════ -->
+<div class="page active" id="page-form">
+<div class="main">
+
+  <div id="db-status" class="status-bar status-loading"><span class="dot"></span> Conectando ao banco de dados...</div>
+  <div id="edit-indicator" style="display:none" class="edit-badge">✏ Editando relatório existente — salvar irá atualizar</div>
+  <div id="name-banner"></div>
+
+  <!-- NOME -->
+  <div class="card">
+    <div class="card-hd"><span class="card-hd-lbl">Identificação</span></div>
+    <div class="card-bd">
+      <div class="fgroup">
+        <label>Seu nome (aparece nos registros)</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="f-nome" placeholder="Ex: João — Turno Noite" style="flex:1">
+          <button class="btn btn-accent" onclick="salvarNome()">✓ OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TURNO INFO -->
+  <div class="card">
+    <div class="card-hd"><span class="card-hd-lbl">Informações do Turno</span></div>
+    <div class="card-bd">
+      <div class="grid2">
+        <div class="fgroup">
+          <label>Data</label>
+          <input type="date" id="f-data" oninput="updatePreview()">
+        </div>
+        <div class="fgroup">
+          <label>Turno</label>
+          <div class="tgroup" id="f-turno">
+            <button class="tbtn" onclick="selT('f-turno',this)">Manhã</button>
+            <button class="tbtn" onclick="selT('f-turno',this)">Tarde</button>
+            <button class="tbtn" onclick="selT('f-turno',this)">Noite</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ITENS (ocorrências + atividades) -->
+  <div id="items-list" style="display:flex;flex-direction:column;gap:12px;"></div>
+
+  <!-- BOTÕES DE ADIÇÃO -->
+  <div class="add-row">
+    <div class="add-btn add-btn-occ" onclick="addItem('occ')">
+      <span class="add-icon">🔧</span>
+      + Ocorrência
+    </div>
+    <div class="add-btn add-btn-ativ" onclick="addItem('ativ')">
+      <span class="add-icon">📅</span>
+      + Atividade Programada
+    </div>
+  </div>
+
+  <!-- PRÉVIA COM ABAS -->
+  <div class="card">
+    <div class="card-hd"><span class="card-hd-lbl">Prévia da Mensagem</span></div>
+    <div class="card-bd">
+      <div class="inner-tabs">
+        <button class="itab active" onclick="switchItab(this,'prev-occ')">🔧 Ocorrências</button>
+        <button class="itab" onclick="switchItab(this,'prev-ativ')">📅 Atividades</button>
+        <button class="itab" onclick="switchItab(this,'prev-full')">📋 Completo</button>
+      </div>
+      <div class="itab-panel active" id="prev-occ">
+        <div class="preview-box" id="f-prev-occ">—</div>
+      </div>
+      <div class="itab-panel" id="prev-ativ">
+        <div class="preview-box" id="f-prev-ativ">—</div>
+      </div>
+      <div class="itab-panel" id="prev-full">
+        <div class="preview-box" id="f-prev-full">—</div>
+      </div>
+      <button class="btn btn-green btn-full" onclick="copyActivePreview()">📋 Copiar Mensagem Visível</button>
+    </div>
+  </div>
+
+</div>
+<div class="save-bar">
+  <button class="btn" onclick="clearForm()">↺ Limpar</button>
+  <button class="btn btn-accent" onclick="saveReport()" style="flex:2">💾 Salvar no Histórico</button>
+</div>
+</div>
+
+<!-- ══════════ HISTORY PAGE ══════════ -->
+<div class="page" id="page-hist">
+<div class="main">
+  <div id="hist-list"></div>
+</div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-bg" id="view-modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2 id="modal-title">Relatório</h2>
+      <button class="modal-close" onclick="closeModal('view-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-inner-tabs">
+        <button class="mitab active" onclick="switchMitab(this,'m-occ')">🔧 Ocorrências</button>
+        <button class="mitab" onclick="switchMitab(this,'m-ativ')">📅 Atividades</button>
+        <button class="mitab" onclick="switchMitab(this,'m-full')">📋 Completo</button>
+      </div>
+      <div class="mitab-panel active" id="m-occ"><div class="modal-preview" id="mt-occ"></div></div>
+      <div class="mitab-panel" id="m-ativ"><div class="modal-preview" id="mt-ativ"></div></div>
+      <div class="mitab-panel" id="m-full"><div class="modal-preview" id="mt-full"></div></div>
+      <div class="modal-actions">
+        <button class="btn btn-green" onclick="copyActiveModal()">📋 Copiar</button>
+        <button class="btn btn-accent" onclick="editReport(currentId)">✏ Editar</button>
+        <button class="btn btn-red" onclick="confirmDelete(currentId)">🗑 Excluir</button>
+        <button class="btn" onclick="closeModal('view-modal')">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-bg" id="confirm-modal">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-hd"><h2>Confirmar exclusão</h2><button class="modal-close" onclick="closeModal('confirm-modal')">✕</button></div>
+    <div class="modal-body confirm-body">
+      <p>Deseja excluir este relatório?<br>Esta ação não pode ser desfeita.</p>
+      <div class="modal-actions" style="justify-content:center">
+        <button class="btn btn-red" onclick="doDelete()">🗑 Excluir</button>
+        <button class="btn" onclick="closeModal('confirm-modal')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getFirestore, collection, addDoc, doc,
+  updateDoc, deleteDoc, orderBy, query, onSnapshot
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCFUBsmpZkK4SzZFinK89nrl1dj28VCAYY",
+  authDomain: "passagem-turno-3c668.firebaseapp.com",
+  projectId: "passagem-turno-3c668",
+  storageBucket: "passagem-turno-3c668.firebasestorage.app",
+  messagingSenderId: "942055408398",
+  appId: "1:942055408398:web:05c846a291f2edf91e0d5f"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const COL = 'relatorios';
+
+const MODOS    = ['Elétrico','Mecânico','Instrumental','Processo','Outro'];
+const IMPACTOS = ['Parada total','Redução de capacidade','Sem impacto'];
+const TIPOS    = ['Corretiva','Paliativa','Preventiva','Substituição'];
+const STATUS   = ['Concluída','Em andamento','Pendente'];
+const STATUS_CLS = {'Concluída':'status-concluida','Em andamento':'status-andamento','Pendente':'status-pendente'};
+
+let itemCount  = 0;
+let editingId  = null;
+let currentId  = null;
+let deleteId   = null;
+let nomeUsuario = '';
+let histCache  = [];
+
+// ── STATUS DB ──────────────────────────────────────────
+function setStatus(type, msg) {
+  const el = document.getElementById('db-status');
+  el.className = 'status-bar status-' + type;
+  el.innerHTML = `<span class="dot"></span> ${msg}`;
+}
+
+// ── NOME ───────────────────────────────────────────────
+window.salvarNome = function() {
+  const v = document.getElementById('f-nome').value.trim();
+  if (!v) { showToast('Informe seu nome.', true); return; }
+  nomeUsuario = v;
+  try { localStorage.setItem('turno_nome', v); } catch(e) {}
+  renderNameBanner();
+  showToast('Nome salvo: ' + v);
+};
+function renderNameBanner() {
+  document.getElementById('name-banner').innerHTML = nomeUsuario
+    ? `<div class="name-banner"><span class="dot"></span> Registrando como <strong>${nomeUsuario}</strong> — sincronizado em tempo real</div>`
+    : '';
+}
+
+// ── TOGGLE ─────────────────────────────────────────────
+window.selT = function(gid, btn) {
+  document.querySelectorAll('#'+gid+' .tbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); updatePreview();
+};
+window.selOT = function(btn) {
+  btn.closest('.tgroup').querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active'); updatePreview();
+};
+function getT(gid) {
+  const a = document.querySelector('#'+gid+' .tbtn.active');
+  return a ? a.textContent.trim() : null;
+}
+
+// ── ADD ITEM ───────────────────────────────────────────
+window.addItem = function(tipo, data) {
+  itemCount++;
+  const i = itemCount; const d = data || {};
+  const div = document.createElement('div');
+  div.className = 'item-card tipo-' + tipo; div.id = 'item-' + i;
+  div.dataset.tipo = tipo;
+
+  const innerHtml = tipo === 'occ' ? buildOccFields(i, d) : buildAtivFields(i, d);
+
+  div.innerHTML = `
+    <div class="item-hd">
+      <span class="item-tipo-badge ${tipo === 'occ' ? 'badge-occ' : 'badge-ativ'}">${tipo === 'occ' ? '🔧 OCORRÊNCIA' : '📅 ATIVIDADE'}</span>
+      <span class="item-num">#${i}</span>
+      ${d.autor ? `<span class="item-author">— ${d.autor}</span>` : ''}
+      <button class="btn btn-red" style="margin-left:auto;padding:3px 9px;font-size:10px" onclick="rmItem(${i})">✕</button>
+    </div>
+    <div class="item-bd">${innerHtml}</div>`;
+  document.getElementById('items-list').appendChild(div);
+  updatePreview();
+};
+
+function buildOccFields(i, d) {
+  return `
+    <div>
+      <div class="sec-lbl" style="margin-bottom:8px">Equipamento</div>
+      <div class="fgroup"><label>Descrição</label>
+        <textarea id="o${i}-eq" rows="2" placeholder="Ex: Bomba centrífuga linha 3..." oninput="updatePreview()">${d.equip||''}</textarea>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="sec-lbl">Falha</div>
+      <div class="fgroup"><label>Sintoma observado</label>
+        <textarea id="o${i}-sin" rows="2" placeholder="O que foi observado..." oninput="updatePreview()">${d.sintoma||''}</textarea>
+      </div>
+      <div class="fgroup"><label>Modo de falha</label>
+        <div class="tgroup" id="o${i}-modo">
+          ${MODOS.map(m=>`<button class="tbtn${d.modo===m?' active':''}" onclick="selOT(this)">${m}</button>`).join('')}
+        </div>
+      </div>
+      <div class="fgroup"><label>Impacto operacional</label>
+        <div class="tgroup" id="o${i}-imp">
+          ${IMPACTOS.map(m=>`<button class="tbtn${d.impacto===m?' active':''}" onclick="selOT(this)">${m}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="sec-lbl">Solução</div>
+      <div class="fgroup"><label>Tipo de intervenção</label>
+        <div class="tgroup" id="o${i}-tipo">
+          ${TIPOS.map(m=>`<button class="tbtn${d.tipo===m?' active':''}" onclick="selOT(this)">${m}</button>`).join('')}
+        </div>
+      </div>
+      <div class="fgroup"><label>Descrição da solução</label>
+        <textarea id="o${i}-sol" rows="2" placeholder="Como foi resolvido..." oninput="updatePreview()">${d.solucao||''}</textarea>
+      </div>
+    </div>`;
+}
+
+function buildAtivFields(i, d) {
+  return `
+    <div>
+      <div class="sec-lbl" style="margin-bottom:8px">Atividade</div>
+      <div class="fgroup"><label>Equipamento</label>
+        <textarea id="a${i}-eq" rows="2" placeholder="Ex: Motor esteira 2, Painel elétrico..." oninput="updatePreview()">${d.equip||''}</textarea>
+      </div>
+      <div class="fgroup" style="margin-top:10px"><label>Descrição da atividade</label>
+        <textarea id="a${i}-desc" rows="2" placeholder="Descreva a atividade programada..." oninput="updatePreview()">${d.desc||''}</textarea>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="fgroup">
+      <label>Status</label>
+      <div class="tgroup" id="a${i}-status">
+        ${STATUS.map(s=>`<button class="tbtn ${STATUS_CLS[s]}${d.status===s?' active':''}" onclick="selOT(this)">${s}</button>`).join('')}
+      </div>
+    </div>`;
+}
+
+window.rmItem = function(i) {
+  const el = document.getElementById('item-' + i);
+  if (el) { el.remove(); updatePreview(); }
+};
+
+// ── GET ITEMS ──────────────────────────────────────────
+function getItems() {
+  return [...document.querySelectorAll('.item-card')].map(el => {
+    const i    = el.id.replace('item-', '');
+    const tipo = el.dataset.tipo;
+    if (tipo === 'occ') {
+      return { tipo, autor: nomeUsuario||null,
+        equip:   (document.getElementById('o'+i+'-eq')?.value||'').trim(),
+        sintoma: (document.getElementById('o'+i+'-sin')?.value||'').trim(),
+        modo:    getT('o'+i+'-modo'),
+        impacto: getT('o'+i+'-imp'),
+        tipo_int:getT('o'+i+'-tipo'),
+        solucao: (document.getElementById('o'+i+'-sol')?.value||'').trim() };
+    } else {
+      return { tipo, autor: nomeUsuario||null,
+        equip:  (document.getElementById('a'+i+'-eq')?.value||'').trim(),
+        desc:   (document.getElementById('a'+i+'-desc')?.value||'').trim(),
+        status: getT('a'+i+'-status') };
+    }
+  });
+}
+
+// ── BUILD TEXTS ────────────────────────────────────────
+function buildHeader(d) {
+  const df = d.data ? new Date(d.data+'T12:00').toLocaleDateString('pt-BR') : '—';
+  return `Data: ${df}  |  Turno: ${d.turno||'—'}`;
+}
+function buildOccText(d) {
+  const occs = (d.itens||[]).filter(x => x.tipo === 'occ');
+  if (!occs.length) return buildHeader(d) + '\n\nNenhuma ocorrência registrada.';
+  let t = ['📋 *OCORRÊNCIAS DO TURNO*', buildHeader(d)];
+  occs.forEach((o, idx) => {
+    t.push('\n─────────────────────');
+    t.push(`🔧 *OCORRÊNCIA ${idx+1}*${o.autor?' ['+o.autor+']':''}`);
+    t.push(`Equipamento: ${o.equip||'—'}`);
+    t.push(`Sintoma: ${o.sintoma||'—'}`);
+    t.push(`Modo de falha: ${o.modo||'—'}  |  Impacto: ${o.impacto||'—'}`);
+    t.push(`Intervenção: ${o.tipo_int||'—'}`);
+    t.push(`Solução: ${o.solucao||'—'}`);
+  });
+  t.push('─────────────────────');
+  return t.join('\n');
+}
+function buildAtivText(d) {
+  const ativs = (d.itens||[]).filter(x => x.tipo === 'ativ');
+  if (!ativs.length) return buildHeader(d) + '\n\nNenhuma atividade programada.';
+  const statusEmoji = {'Concluída':'✅','Em andamento':'🔄','Pendente':'⏳'};
+  let t = ['📅 *ATIVIDADES PROGRAMADAS DO TURNO*', buildHeader(d)];
+  ativs.forEach((a, idx) => {
+    t.push('\n─────────────────────');
+    const emoji = statusEmoji[a.status] || '•';
+    t.push(`${emoji} *ATIVIDADE ${idx+1}*${a.autor?' ['+a.autor+']':''}`);
+    t.push(`Equipamento: ${a.equip||'—'}`);
+    t.push(`Atividade: ${a.desc||'—'}`);
+    t.push(`Status: ${a.status||'—'}`);
+  });
+  t.push('─────────────────────');
+  return t.join('\n');
+}
+function buildFullText(d) {
+  return buildOccText(d) + '\n\n' + buildAtivText(d);
+}
+
+window.updatePreview = function() {
+  const d = getFormData();
+  document.getElementById('f-prev-occ').textContent  = buildOccText(d);
+  document.getElementById('f-prev-ativ').textContent = buildAtivText(d);
+  document.getElementById('f-prev-full').textContent = buildFullText(d);
+};
+
+// ── FORM DATA ──────────────────────────────────────────
+function getFormData() {
+  return {
+    data:  document.getElementById('f-data').value,
+    turno: getT('f-turno'),
+    itens: getItems()
+  };
+}
+function loadFormData(d) {
+  document.getElementById('f-data').value = d.data || '';
+  document.querySelectorAll('#f-turno .tbtn').forEach(b =>
+    b.classList.toggle('active', b.textContent.trim() === d.turno)
+  );
+  document.getElementById('items-list').innerHTML = ''; itemCount = 0;
+  (d.itens || []).forEach(it => addItem(it.tipo, it));
+  updatePreview();
+}
+
+// ── SAVE ───────────────────────────────────────────────
+window.saveReport = async function() {
+  const d = getFormData();
+  if (!d.data && !d.turno && d.itens.length === 0) {
+    showToast('Preencha ao menos um campo.', true); return;
+  }
+  if (!nomeUsuario) { showToast('Informe seu nome antes de salvar.', true); return; }
+  try {
+    setStatus('loading', 'Salvando...');
+    if (editingId) {
+      await updateDoc(doc(db, COL, editingId), { ...d, updatedAt: Date.now(), editadoPor: nomeUsuario });
+      editingId = null;
+      document.getElementById('edit-indicator').style.display = 'none';
+    } else {
+      await addDoc(collection(db, COL), { ...d, criadoEm: Date.now(), criadoPor: nomeUsuario });
+    }
+    setStatus('ok', 'Conectado — dados sincronizados');
+    showToast('✓ Relatório salvo!');
+    clearForm(true);
+  } catch(e) {
+    setStatus('err', 'Erro ao salvar: ' + e.message);
+    showToast('Erro ao salvar.', true);
+  }
+};
+
+// ── REALTIME HISTORY ───────────────────────────────────
+function startRealtime() {
+  const q = query(collection(db, COL), orderBy('criadoEm', 'desc'));
+  onSnapshot(q, snap => {
+    histCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    document.getElementById('hist-count').textContent = histCache.length;
+    if (document.getElementById('page-hist').classList.contains('active')) renderHistory();
+    setStatus('ok', 'Conectado — ' + histCache.length + ' relatório(s)');
+  }, err => {
+    setStatus('err', 'Erro: ' + err.message);
+  });
+}
+
+function renderHistory() {
+  const el = document.getElementById('hist-list');
+  if (!histCache.length) {
+    el.innerHTML = `<div class="empty"><div class="icon">📋</div><p>Nenhum relatório salvo ainda.</p></div>`;
+    return;
+  }
+  el.innerHTML = histCache.map(r => {
+    const df   = r.data ? new Date(r.data+'T12:00').toLocaleDateString('pt-BR') : 'Sem data';
+    const occs = (r.itens||[]).filter(x=>x.tipo==='occ').length;
+    const ativs= (r.itens||[]).filter(x=>x.tipo==='ativ').length;
+    return `
+    <div class="hist-card">
+      <div class="hist-hd" onclick="viewReport('${r.id}')">
+        <div style="flex:1">
+          <div class="hist-date">${df}</div>
+          <div class="hist-sub">${r.criadoPor||'—'}${r.editadoPor?' · editado por '+r.editadoPor:''}</div>
+        </div>
+        <div class="hist-tags">
+          ${r.turno?`<span class="tag tag-turno">${r.turno}</span>`:''}
+          ${occs ?`<span class="tag tag-occ">🔧 ${occs}</span>`:''}
+          ${ativs?`<span class="tag tag-ativ">📅 ${ativs}</span>`:''}
+        </div>
+      </div>
+      <div class="hist-actions">
+        <button class="btn btn-green" onclick="viewReport('${r.id}')">👁 Ver</button>
+        <button class="btn btn-accent" onclick="editReport('${r.id}')">✏ Editar</button>
+        <button class="btn btn-red" onclick="confirmDelete('${r.id}')">🗑 Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.viewReport = function(id) {
+  const r = histCache.find(x => x.id === id); if (!r) return;
+  currentId = id;
+  const df = r.data ? new Date(r.data+'T12:00').toLocaleDateString('pt-BR') : 'Sem data';
+  document.getElementById('modal-title').textContent = `${df} — ${r.turno||'?'} · ${r.criadoPor||''}`;
+  document.getElementById('mt-occ').textContent  = buildOccText(r);
+  document.getElementById('mt-ativ').textContent = buildAtivText(r);
+  document.getElementById('mt-full').textContent = buildFullText(r);
+  // reset modal tabs
+  document.querySelectorAll('.mitab').forEach((b,i) => b.classList.toggle('active', i===0));
+  document.querySelectorAll('.mitab-panel').forEach((p,i) => p.classList.toggle('active', i===0));
+  document.getElementById('view-modal').classList.add('open');
+};
+window.editReport = function(id) {
+  closeModal('view-modal');
+  const r = histCache.find(x => x.id === id); if (!r) return;
+  editingId = id; loadFormData(r);
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-form').classList.add('active');
+  document.querySelector('.tab-btn').classList.add('active');
+  document.getElementById('edit-indicator').style.display = 'flex';
+  showToast('Relatório carregado para edição.');
+};
+window.confirmDelete = function(id) {
+  deleteId = id; closeModal('view-modal');
+  document.getElementById('confirm-modal').classList.add('open');
+};
+window.doDelete = async function() {
+  try {
+    await deleteDoc(doc(db, COL, deleteId));
+    deleteId = null; closeModal('confirm-modal'); showToast('Relatório excluído.');
+  } catch(e) { showToast('Erro ao excluir.', true); }
+};
+
+// ── INNER TABS ─────────────────────────────────────────
+window.switchItab = function(btn, panelId) {
+  btn.closest('.card-bd').querySelectorAll('.itab').forEach(b => b.classList.remove('active'));
+  btn.closest('.card-bd').querySelectorAll('.itab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+};
+window.switchMitab = function(btn, panelId) {
+  btn.closest('.modal-body').querySelectorAll('.mitab').forEach(b => b.classList.remove('active'));
+  btn.closest('.modal-body').querySelectorAll('.mitab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+};
+
+// ── COPY ───────────────────────────────────────────────
+window.copyActivePreview = function() {
+  const active = document.querySelector('.itab-panel.active .preview-box');
+  if (active) navigator.clipboard.writeText(active.textContent).then(() => showToast('✓ Copiado!')).catch(() => showToast('Erro', true));
+};
+window.copyActiveModal = function() {
+  const active = document.querySelector('.mitab-panel.active .modal-preview');
+  if (active) navigator.clipboard.writeText(active.textContent).then(() => showToast('✓ Copiado!')).catch(() => showToast('Erro', true));
+};
+
+// ── CLEAR ──────────────────────────────────────────────
+window.clearForm = function(silent) {
+  if (!silent && !confirm('Limpar formulário atual?')) return;
+  editingId = null;
+  document.getElementById('edit-indicator').style.display = 'none';
+  document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('#f-turno .tbtn').forEach(b => b.classList.remove('active'));
+  document.getElementById('items-list').innerHTML = ''; itemCount = 0;
+  updatePreview();
+};
+
+// ── PAGE NAV ───────────────────────────────────────────
+window.showPage = function(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active'); btn.classList.add('active');
+  if (id === 'hist') renderHistory();
+};
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+
+// ── TOAST ──────────────────────────────────────────────
+function showToast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast'+(err?' err':'');
+  void t.offsetWidth; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── INIT ───────────────────────────────────────────────
+document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+document.getElementById('f-data').addEventListener('input', updatePreview);
+try {
+  const n = localStorage.getItem('turno_nome');
+  if (n) { nomeUsuario = n; document.getElementById('f-nome').value = n; renderNameBanner(); }
+} catch(e) {}
+document.querySelectorAll('.modal-bg').forEach(bg =>
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); })
+);
+updatePreview();
+startRealtime();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
