@@ -22,7 +22,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14px;min-height:100vh}
 
-/* NAV */
 .nav{background:var(--surf);border-bottom:2px solid var(--acc);display:flex;align-items:stretch;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 .nav-brand{padding:12px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid var(--brd)}
 .hex{width:26px;height:26px;background:var(--acc);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
@@ -33,17 +32,14 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .tbadge{border-radius:10px;font-size:9px;padding:1px 6px;color:#fff}
 .tbadge-o{background:var(--acc2)}.tbadge-b{background:var(--blue)}
 
-/* PAGES */
 .pg{display:none}.pg.on{display:block}
 .wrap{max-width:740px;margin:0 auto;padding:18px 14px 100px;display:flex;flex-direction:column;gap:14px}
 
-/* CARDS */
 .card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden}
 .card-hd{background:var(--surf2);padding:9px 13px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px}
 .card-lbl{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--mut);flex:1}
 .card-bd{padding:13px;display:flex;flex-direction:column;gap:11px}
 
-/* FORM ELEMENTS */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 .fg{display:flex;flex-direction:column;gap:5px}
 .fg label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--lbl);font-weight:600}
@@ -52,16 +48,15 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .fg textarea{resize:vertical;line-height:1.5}
 .fg select option{background:var(--surf2)}
 
-/* TOGGLES */
+/* TOGGLES — cada grupo tem data-group único */
 .tg{display:flex;gap:5px;flex-wrap:wrap}
-.tbn{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--mut);cursor:pointer;font-family:var(--mono);font-size:10px;padding:5px 11px;transition:all .15s;user-select:none}
+.tbn{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--mut);cursor:pointer;font-family:var(--mono);font-size:10px;padding:6px 12px;transition:all .15s;user-select:none;line-height:1}
 .tbn:hover{border-color:var(--acc);color:var(--txt)}
 .tbn.on{background:var(--acc);border-color:var(--acc);color:#000;font-weight:600}
 .tbn.sc.on{background:var(--grn);border-color:var(--grn);color:#000}
 .tbn.sa.on{background:var(--blue);border-color:var(--blue);color:#fff}
 .tbn.sp.on{background:var(--red);border-color:var(--red);color:#fff}
 
-/* BUTTONS */
 .btn{border-radius:var(--r);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:8px 16px;text-transform:uppercase;transition:all .15s;border:1px solid var(--brd);background:var(--surf2);color:var(--txt);display:inline-flex;align-items:center;gap:6px}
 .btn:hover{border-color:var(--brd2)}
 .btn-acc{background:var(--acc);border-color:var(--acc);color:#000}.btn-acc:hover{background:#ffc030}
@@ -70,47 +65,48 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .btn-red{background:rgba(224,80,80,.1);border-color:var(--red);color:var(--red)}.btn-red:hover{background:rgba(224,80,80,.2)}
 .btn-full{width:100%;justify-content:center;padding:10px;font-size:11px}
 
-/* ADD BUTTONS ROW */
 .add-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .add-btn{border:1px dashed var(--brd2);border-radius:var(--rl);padding:14px;text-align:center;cursor:pointer;transition:all .15s;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:5px}
 .add-btn-o{color:var(--acc2);border-color:rgba(224,92,42,.35)}.add-btn-o:hover{border-color:var(--acc2);background:rgba(224,92,42,.07)}
 .add-btn-a{color:var(--blue);border-color:rgba(74,144,226,.35)}.add-btn-a:hover{border-color:var(--blue);background:rgba(74,144,226,.07)}
 
-/* ITEM LIST */
-.item-row{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:9px}
+/* ITEM ROW */
+.item-row{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:10px 13px;display:flex;align-items:center;gap:9px;transition:border-color .15s}
+.item-row:hover{border-color:var(--brd2)}
 .item-row.tipo-occ{border-left:3px solid var(--acc2)}
 .item-row.tipo-ativ{border-left:3px solid var(--blue)}
-.item-badge{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:2px;letter-spacing:1px;flex-shrink:0}
+.ibadge{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:2px;letter-spacing:1px;flex-shrink:0}
 .ib-o{background:rgba(224,92,42,.2);color:var(--acc2);border:1px solid rgba(224,92,42,.3)}
 .ib-a{background:rgba(74,144,226,.2);color:var(--blue);border:1px solid rgba(74,144,226,.3)}
-.item-text{flex:1;font-size:12px;overflow:hidden}
-.item-text strong{display:block;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item-text span{color:var(--mut);font-size:10px}
-.item-sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.item-txt{flex:1;font-size:12px;overflow:hidden}
+.item-txt strong{display:block;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-txt span{color:var(--mut);font-size:10px}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sdot-g{background:var(--grn)}.sdot-b{background:var(--blue)}.sdot-r{background:var(--red)}.sdot-m{background:var(--mut)}
-.item-actions{display:flex;gap:5px;flex-shrink:0}
+.item-btns{display:flex;gap:5px;flex-shrink:0}
 
-/* MODAL OVERLAY */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;padding:16px;align-items:flex-end;justify-content:center}
+/* OVERLAY */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;padding:0;align-items:flex-end;justify-content:center}
 .ov.on{display:flex}
-.ov.center{align-items:center}
+.ov-center{align-items:center;padding:16px}
 
-/* BOTTOM SHEET / MODAL */
-.sheet{background:var(--surf);border:1px solid var(--brd2);border-radius:16px 16px 0 0;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;padding:0}
-.sheet-hd{padding:14px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--surf);z-index:10}
+/* BOTTOM SHEET */
+.sheet{background:var(--surf);border-radius:16px 16px 0 0;width:100%;max-width:700px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.5)}
+.sheet-hd{padding:14px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .sheet-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;flex:1}
-.sheet-title.c-occ{color:var(--acc2)}.sheet-title.c-ativ{color:var(--blue)}
-.sheet-close{background:none;border:none;color:var(--mut);cursor:pointer;font-size:20px;line-height:1;padding:0 4px}
+.st-occ{color:var(--acc2)}.st-ativ{color:var(--blue)}
+.sheet-close{background:none;border:none;color:var(--mut);cursor:pointer;font-size:22px;line-height:1;padding:0 4px}
 .sheet-close:hover{color:var(--txt)}
-.sheet-bd{padding:16px;display:flex;flex-direction:column;gap:14px}
-.sheet-foot{padding:12px 16px;border-top:1px solid var(--brd);display:flex;gap:8px;background:var(--surf);position:sticky;bottom:0}
-.sheet-foot .btn{flex:1;justify-content:center;padding:10px}
+.sheet-scroll{overflow-y:auto;flex:1;padding:16px;display:flex;flex-direction:column;gap:14px}
+.sheet-foot{padding:12px 16px;border-top:1px solid var(--brd);display:flex;gap:8px;flex-shrink:0;background:var(--surf)}
+.sheet-foot .btn{flex:1;justify-content:center;padding:11px}
 
 /* GENERIC MODAL */
-.modal{background:var(--surf);border:1px solid var(--brd2);border-top:2px solid var(--acc);border-radius:var(--rl);max-width:600px;width:100%;max-height:88vh;overflow-y:auto}
+.modal{background:var(--surf);border:1px solid var(--brd2);border-top:2px solid var(--acc);border-radius:var(--rl);max-width:600px;width:100%;max-height:90vh;overflow-y:auto}
 .modal-hd{padding:11px 14px;border-bottom:1px solid var(--brd);display:flex;align-items:center}
 .modal-hd h2{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);flex:1}
-.modal-close{background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;line-height:1}
+.mc{background:none;border:none;color:var(--mut);cursor:pointer;font-size:18px;line-height:1}
+.mc:hover{color:var(--txt)}
 .modal-body{padding:14px;display:flex;flex-direction:column;gap:12px}
 
 /* PREVIEW TABS */
@@ -120,33 +116,31 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .ipanel{display:none;padding-top:13px}.ipanel.on{display:block}
 .pbox{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--txt);font-family:var(--mono);font-size:11px;line-height:1.7;padding:11px;white-space:pre-wrap;word-break:break-word;min-height:50px;max-height:200px;overflow-y:auto}
 
-/* STATUS / BANNERS */
 .sbar{display:flex;align-items:center;gap:8px;padding:7px 11px;border-radius:var(--r);font-size:11px;font-family:var(--mono)}
-.sbar-ok{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--grn)}
-.sbar-err{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);color:var(--red)}
-.sbar-load{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);color:var(--acc)}
-.puls{width:7px;height:7px;border-radius:50%;background:currentColor;animation:p 2s infinite;flex-shrink:0}
-@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-ok{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3);color:var(--grn)}
+.sb-err{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);color:var(--red)}
+.sb-load{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);color:var(--acc)}
+.puls{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pu 2s infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.3}}
 .nbanner{background:rgba(240,165,0,.08);border:1px solid rgba(240,165,0,.2);border-radius:var(--r);padding:7px 11px;font-size:11px;color:var(--acc);font-family:var(--mono);display:flex;align-items:center;gap:7px}
-.ebadge{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.22);border-radius:var(--r);padding:6px 11px;font-family:var(--mono);font-size:10px;color:var(--acc);display:flex;align-items:center;gap:7px}
+.auto-badge{background:rgba(74,144,226,.1);border:1px solid rgba(74,144,226,.25);border-radius:var(--r);padding:6px 11px;font-family:var(--mono);font-size:10px;color:var(--blue);display:flex;align-items:center;gap:7px}
+
 .divider{height:1px;background:var(--brd)}
 .slbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:600;border-bottom:1px solid var(--brd);padding-bottom:5px}
 
-/* OPEN REPORTS */
 .ocard{background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:10px}
 .ocard-hd{padding:12px 13px;display:flex;align-items:center;gap:10px}
 .ocard-sector{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--acc)}
 .ocard-meta{font-size:11px;color:var(--mut);margin-top:2px}
 .otags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
-.ocard-items{padding:8px 13px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:5px;max-height:140px;overflow-y:auto}
+.ocard-items{padding:8px 13px;border-top:1px solid var(--brd);display:flex;flex-direction:column;gap:5px;max-height:150px;overflow-y:auto}
 .ocard-actions{padding:9px 13px;border-top:1px solid var(--brd);background:var(--surf2);display:flex;gap:7px;flex-wrap:wrap}
 
-/* HISTORY */
 .hcard{background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:10px}
 .hcard-hd{padding:11px 13px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s}
 .hcard-hd:hover{background:var(--surf2)}
-.hcard-date{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--acc)}
-.hcard-sub{font-size:11px;color:var(--mut);margin-top:2px}
+.hdate{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--acc)}
+.hsub{font-size:11px;color:var(--mut);margin-top:2px}
 .htags{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto}
 .tag{font-family:var(--mono);font-size:9px;font-weight:600;padding:2px 7px;border-radius:2px}
 .tag-t{background:var(--surf2);border:1px solid var(--brd2);color:var(--lbl)}
@@ -154,18 +148,15 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .tag-a{background:rgba(74,144,226,.15);border:1px solid rgba(74,144,226,.3);color:var(--blue)}
 .hcard-foot{padding:8px 13px;border-top:1px solid var(--brd);background:var(--surf2);display:flex;gap:7px;flex-wrap:wrap}
 
-/* VIEW MODAL TABS */
 .mtabs{display:flex;border-bottom:1px solid var(--brd);margin:-14px -14px 0}
 .mtab{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:9px 13px;text-transform:uppercase;transition:all .15s;margin-bottom:-1px}
 .mtab.on{border-bottom-color:var(--acc);color:var(--acc)}
 .mpanel{display:none;padding-top:13px}.mpanel.on{display:block}
 .mbox{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--txt);font-family:var(--mono);font-size:11px;line-height:1.7;padding:11px;white-space:pre-wrap;word-break:break-word;max-height:38vh;overflow-y:auto}
 
-/* CONFIRM MODAL */
 .confirm-bd{text-align:center;padding:20px 14px}
 .confirm-bd p{color:var(--lbl);font-size:13px;line-height:1.6;margin-bottom:18px}
 
-/* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--grn);color:#000;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1px;padding:8px 18px;border-radius:var(--r);transition:transform .25s ease;pointer-events:none;z-index:999;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.4)}
 .toast.on{transform:translateX(-50%) translateY(0)}.toast.err{background:var(--red);color:#fff}
 
@@ -179,7 +170,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 </head>
 <body>
 
-<!-- NAV -->
 <nav class="nav">
   <div class="nav-brand"><div class="hex"></div><span class="nav-title">Turno</span></div>
   <div class="nav-tabs">
@@ -189,14 +179,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
   </div>
 </nav>
 
-<!-- ══ NOVO ══ -->
+<!-- NOVO -->
 <div class="pg on" id="pg-novo">
 <div class="wrap">
-  <div id="db-st" class="sbar sbar-load"><span class="puls"></span> Conectando...</div>
-  <div id="edit-ind" style="display:none" class="ebadge">✏ Editando relatório aberto</div>
+  <div id="db-st" class="sbar sb-load"><span class="puls"></span> Conectando...</div>
+  <div id="auto-ind" style="display:none" class="auto-badge"><span class="puls"></span> Relatório sendo preenchido — salvo automaticamente como Aberto</div>
   <div id="nbanner"></div>
 
-  <!-- NOME -->
   <div class="card">
     <div class="card-hd"><span class="card-lbl">Identificação</span></div>
     <div class="card-bd">
@@ -210,41 +199,37 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
     </div>
   </div>
 
-  <!-- RELATÓRIO -->
   <div class="card">
     <div class="card-hd"><span class="card-lbl">Informações do Relatório</span></div>
     <div class="card-bd">
       <div class="g2">
-        <div class="fg"><label>Data</label><input type="date" id="f-data"></div>
+        <div class="fg"><label>Data</label><input type="date" id="f-data" oninput="onHeaderChange()"></div>
         <div class="fg"><label>Turno</label>
           <div class="tg" id="f-turno">
-            <button class="tbn" onclick="selT(this)">Manhã</button>
-            <button class="tbn" onclick="selT(this)">Tarde</button>
-            <button class="tbn" onclick="selT(this)">Noite</button>
+            <button class="tbn" onclick="selHdrT(this)">Manhã</button>
+            <button class="tbn" onclick="selHdrT(this)">Tarde</button>
+            <button class="tbn" onclick="selHdrT(this)">Noite</button>
           </div>
         </div>
       </div>
       <div class="fg">
         <label>Setor</label>
         <div class="sector-row">
-          <select id="f-sel" onchange="onSelChange()" style="flex:1"><option value="">— Abrir relatório existente —</option></select>
+          <select id="f-sel" onchange="onSelChange()" style="flex:1"><option value="">— Carregar relatório aberto —</option></select>
           <span style="color:var(--mut);font-size:11px;padding:0 4px">ou</span>
-          <input type="text" id="f-setor" placeholder="Novo setor..." style="flex:1">
+          <input type="text" id="f-setor" placeholder="Novo setor..." style="flex:1" oninput="onHeaderChange()">
         </div>
       </div>
     </div>
   </div>
 
-  <!-- LISTA DE ITENS CONFIRMADOS -->
   <div id="items-list" style="display:flex;flex-direction:column;gap:8px;"></div>
 
-  <!-- ADD -->
   <div class="add-row">
     <div class="add-btn add-btn-o" onclick="openSheet('occ')"><span style="font-size:20px">🔧</span>+ Ocorrência</div>
     <div class="add-btn add-btn-a" onclick="openSheet('ativ')"><span style="font-size:20px">📅</span>+ Atividade</div>
   </div>
 
-  <!-- PRÉVIA -->
   <div class="card">
     <div class="card-hd"><span class="card-lbl">Prévia da Mensagem</span></div>
     <div class="card-bd">
@@ -261,15 +246,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
   </div>
 </div>
 
-<!-- SAVE BAR -->
 <div style="position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--brd2);padding:9px 14px;display:flex;gap:7px;z-index:150">
   <button class="btn" onclick="clearForm()">↺</button>
-  <button class="btn btn-blue" onclick="saveAsOpen()" style="flex:1.2;justify-content:center">◉ Manter Aberto</button>
-  <button class="btn btn-acc" onclick="closeToHist()" style="flex:1.5;justify-content:center">💾 Fechar no Histórico</button>
+  <button class="btn btn-acc" onclick="closeToHist()" style="flex:2;justify-content:center">💾 Fechar no Histórico</button>
 </div>
 </div>
 
-<!-- ══ ABERTOS ══ -->
+<!-- ABERTOS -->
 <div class="pg" id="pg-abertos">
 <div class="wrap">
   <div style="font-family:var(--mono);font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase">Relatórios em preenchimento — contribua ou feche</div>
@@ -277,30 +260,30 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 </div>
 </div>
 
-<!-- ══ HISTÓRICO ══ -->
+<!-- HISTÓRICO -->
 <div class="pg" id="pg-hist">
 <div class="wrap"><div id="hist-list"></div></div>
 </div>
 
-<!-- ══ SHEET: ADICIONAR ITEM ══ -->
+<!-- SHEET: ADICIONAR / EDITAR ITEM -->
 <div class="ov" id="ov-sheet">
-  <div class="sheet" id="sheet">
+  <div class="sheet">
     <div class="sheet-hd">
-      <span class="sheet-title" id="sheet-title">Ocorrência</span>
+      <span class="sheet-title" id="sh-title">Ocorrência</span>
       <button class="sheet-close" onclick="closeSheet()">✕</button>
     </div>
-    <div class="sheet-bd" id="sheet-bd"></div>
+    <div class="sheet-scroll" id="sh-body"></div>
     <div class="sheet-foot">
       <button class="btn" onclick="closeSheet()">Cancelar</button>
-      <button class="btn btn-acc" id="sheet-confirm-btn" onclick="confirmSheet()" style="flex:2">✓ Confirmar e Salvar</button>
+      <button class="btn btn-acc" id="sh-save-btn" onclick="confirmSheet()" style="flex:2">✓ Confirmar e Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- ══ VIEW MODAL ══ -->
-<div class="ov center" id="ov-view">
+<!-- VIEW MODAL -->
+<div class="ov ov-center" id="ov-view">
   <div class="modal">
-    <div class="modal-hd"><h2 id="view-title">Relatório</h2><button class="modal-close" onclick="closeOv('ov-view')">✕</button></div>
+    <div class="modal-hd"><h2 id="view-title">Relatório</h2><button class="mc" onclick="closeOv('ov-view')">✕</button></div>
     <div class="modal-body">
       <div class="mtabs">
         <button class="mtab on" onclick="swMtab(this,'mv-o')">🔧 Ocorrências</button>
@@ -312,18 +295,17 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
       <div class="mpanel" id="mv-f"><div class="mbox" id="mt-f"></div></div>
       <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:4px">
         <button class="btn btn-grn" onclick="copyActiveMod()">📋 Copiar</button>
-        <button class="btn btn-acc" id="mod-edit-btn">✏ Editar</button>
-        <button class="btn btn-red" id="mod-del-btn">🗑 Excluir</button>
+        <button class="btn btn-red" id="mod-del-btn" style="display:none">🗑 Excluir</button>
         <button class="btn" onclick="closeOv('ov-view')">Fechar</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══ CONFIRM MODAL ══ -->
-<div class="ov center" id="ov-confirm">
+<!-- CONFIRM MODAL -->
+<div class="ov ov-center" id="ov-confirm">
   <div class="modal" style="max-width:340px">
-    <div class="modal-hd"><h2>Confirmar</h2><button class="modal-close" onclick="closeOv('ov-confirm')">✕</button></div>
+    <div class="modal-hd"><h2>Confirmar</h2><button class="mc" onclick="closeOv('ov-confirm')">✕</button></div>
     <div class="modal-body confirm-bd">
       <p id="conf-msg">Confirmar?</p>
       <div style="display:flex;gap:8px;justify-content:center">
@@ -336,10 +318,9 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 
 <div class="toast" id="toast"></div>
 
-<!-- FIREBASE -->
 <script type="module">
 import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,arrayUnion,orderBy,query,onSnapshot}
+import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,orderBy,query,onSnapshot,getDoc}
   from'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 const FC={apiKey:"AIzaSyCFUBsmpZkK4SzZFinK89nrl1dj28VCAYY",authDomain:"passagem-turno-3c668.firebaseapp.com",projectId:"passagem-turno-3c668",storageBucket:"passagem-turno-3c668.firebasestorage.app",messagingSenderId:"942055408398",appId:"1:942055408398:web:05c846a291f2edf91e0d5f"};
@@ -353,17 +334,18 @@ const STATUS=['Concluída','Em andamento','Pendente'];
 const SCLS={Concluída:'sc','Em andamento':'sa',Pendente:'sp'};
 const SEMI={Concluída:'✅','Em andamento':'🔄',Pendente:'⏳'};
 
-// ── STATE ──────────────────────────────────────
 let nome='', openCache=[], histCache=[];
-let activeOpenId=null; // relatório aberto sendo editado/contribuído
+let activeOpenId=null;   // ID do relatório aberto sendo editado
 let sheetTipo=null;
-let editHist_id=null;
+let editItemIdx=null;    // índice do item sendo editado (-1 = novo)
 let confCb=null;
+let headerDirty=false;   // header foi alterado e precisa sync
 
-// ── STATUS ──────────────────────────────────────
-function setSt(t,m){const e=document.getElementById('db-st');e.className='sbar sbar-'+t;e.innerHTML=`<span class="puls"></span>${m}`;}
+// ── UTILS ─────────────────────────────────────────────────
+function setSt(t,m){const e=document.getElementById('db-st');e.className='sbar sb-'+t;e.innerHTML=`<span class="puls"></span>${m}`;}
+function showToast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');void t.offsetWidth;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500);}
 
-// ── NOME ──────────────────────────────────────
+// ── NOME ──────────────────────────────────────────────────
 window.saveNome=function(){
   const v=document.getElementById('f-nome').value.trim();
   if(!v){showToast('Informe seu nome.',1);return;}
@@ -372,16 +354,35 @@ window.saveNome=function(){
   showToast('Nome salvo!');
 };
 
-// ── TOGGLE ──────────────────────────────────────
-window.selT=function(b){b.closest('.tg').querySelectorAll('.tbn').forEach(x=>x.classList.remove('on'));b.classList.add('on');};
-function selOT(b){b.closest('.tg').querySelectorAll('.tbn').forEach(x=>x.classList.remove('on'));b.classList.add('on');}
-function getT(g){const a=document.querySelector('#'+g+' .tbn.on');return a?a.textContent.trim():null;}
-function getTg(el){const a=el.querySelector('.tbn.on');return a?a.textContent.trim():null;}
+// ── HEADER TOGGLES ────────────────────────────────────────
+window.selHdrT=function(b){
+  b.closest('.tg').querySelectorAll('.tbn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  onHeaderChange();
+};
 
-// ── SETOR SELECT ──────────────────────────────
+// Toggles DENTRO DO SHEET — escopo isolado pelo data-shgroup
+window.shSelT=function(b){
+  const g=b.dataset.shgroup;
+  // only deselect buttons in same group
+  document.querySelectorAll(`[data-shgroup="${g}"]`).forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+};
+
+function getShT(group){
+  const a=document.querySelector(`[data-shgroup="${group}"].on`);
+  return a?a.textContent.trim():null;
+}
+function setShT(group,val){
+  document.querySelectorAll(`[data-shgroup="${group}"]`).forEach(b=>{
+    b.classList.toggle('on',b.textContent.trim()===val);
+  });
+}
+
+// ── SETOR / SELECT ────────────────────────────────────────
 function refreshSel(){
   const sel=document.getElementById('f-sel');const cur=sel.value;
-  sel.innerHTML='<option value="">— Abrir relatório existente —</option>';
+  sel.innerHTML='<option value="">— Carregar relatório aberto —</option>';
   openCache.forEach(r=>{
     const o=document.createElement('option');o.value=r.id;
     const df=r.data?new Date(r.data+'T12:00').toLocaleDateString('pt-BR'):'';
@@ -393,180 +394,284 @@ function refreshSel(){
 
 window.onSelChange=function(){
   const id=document.getElementById('f-sel').value;
-  if(!id){activeOpenId=null;clearItemsList();updatePreview();return;}
-  const r=openCache.find(x=>x.id===id);
-  if(!r)return;
+  if(!id){
+    activeOpenId=null;
+    document.getElementById('auto-ind').style.display='none';
+    renderItemsFromCache(null);
+    updatePreview();
+    return;
+  }
+  const r=openCache.find(x=>x.id===id);if(!r)return;
   activeOpenId=id;
-  // fill header fields
   document.getElementById('f-data').value=r.data||'';
   document.getElementById('f-setor').value='';
   document.querySelectorAll('#f-turno .tbn').forEach(b=>b.classList.toggle('on',b.textContent.trim()===r.turno));
-  // render existing items as read-only rows
-  clearItemsList();
-  (r.itens||[]).forEach(it=>renderItemRow(it,null)); // null id = can't delete others' confirmed items
+  renderItemsFromCache(r);
   updatePreview();
-  document.getElementById('edit-ind').style.display='flex';
+  document.getElementById('auto-ind').style.display='flex';
 };
 
-// ── ITEMS LIST ────────────────────────────────
-// localItems: items added in this session (have ids for deletion)
-const localItems=[]; // {localId, data}
-let lid=0;
+window.onHeaderChange=function(){
+  headerDirty=true;
+  updatePreview();
+  // auto-save header if we have an active open report
+  if(activeOpenId) autoSyncHeader();
+};
 
-function clearItemsList(){localItems.length=0;document.getElementById('items-list').innerHTML='';updatePreview();}
+async function autoSyncHeader(){
+  if(!activeOpenId)return;
+  const data=document.getElementById('f-data').value;
+  const turno=getHdrT();
+  const setor=getSetor();
+  try{await updateDoc(doc(db,CO,activeOpenId),{data,turno,setor,updatedAt:Date.now()});}
+  catch(e){/* silent */}
+  headerDirty=false;
+}
+function getHdrT(){const a=document.querySelector('#f-turno .tbn.on');return a?a.textContent.trim():null;}
+function getSetor(){
+  const n=document.getElementById('f-setor').value.trim();if(n)return n;
+  if(activeOpenId){const r=openCache.find(x=>x.id===activeOpenId);return r?r.setor||'':'';}
+  return'';
+}
 
-function renderItemRow(it, localId){
-  const el=document.createElement('div');
-  el.className=`item-row tipo-${it.tipo}`;
-  if(localId!==null)el.id='lr-'+localId;
+// ── RENDER ITEMS ──────────────────────────────────────────
+function renderItemsFromCache(r){
+  const list=document.getElementById('items-list');
+  list.innerHTML='';
+  if(!r)return;
+  (r.itens||[]).forEach((it,idx)=>list.appendChild(makeItemRow(it,idx)));
+  updatePreview();
+}
+
+function makeItemRow(it,idx){
   const isOcc=it.tipo==='occ';
   const dot=isOcc?'sdot-g':(it.status?{Concluída:'sdot-g','Em andamento':'sdot-b',Pendente:'sdot-r'}[it.status]||'sdot-m':'sdot-m');
   const sub=isOcc
-    ?`${it.modo||'—'} · ${it.impacto||'—'} · ${it.tipo_int||'—'}`
+    ?[it.modo,it.impacto,it.tipo_int].filter(Boolean).join(' · ')||'—'
     :`${it.desc||'—'} · ${SEMI[it.status]||''} ${it.status||'—'}`;
+  const el=document.createElement('div');
+  el.className=`item-row tipo-${it.tipo}`;
+  el.dataset.idx=idx;
   el.innerHTML=`
-    <span class="item-badge ${isOcc?'ib-o':'ib-a'}">${isOcc?'🔧':'📅'}</span>
-    <div class="item-text">
+    <span class="ibadge ${isOcc?'ib-o':'ib-a'}">${isOcc?'🔧':'📅'}</span>
+    <div class="item-txt">
       <strong>${it.equip||'(sem equipamento)'}</strong>
       <span>${sub}${it.autor?' · <em>'+it.autor+'</em>':''}</span>
     </div>
-    <span class="item-sdot ${dot}"></span>
-    <div class="item-actions">
-      ${localId!==null?`<button class="btn btn-red" style="padding:3px 8px;font-size:9px" onclick="removeLocalItem(${localId})">✕</button>`:'<span style="width:32px"></span>'}
+    <span class="sdot ${dot}"></span>
+    <div class="item-btns">
+      <button class="btn btn-blue" style="padding:3px 8px;font-size:9px" onclick="editItem(${idx})">✏</button>
+      <button class="btn btn-red" style="padding:3px 8px;font-size:9px" onclick="deleteItem(${idx})">✕</button>
     </div>`;
-  document.getElementById('items-list').appendChild(el);
+  return el;
 }
 
-window.removeLocalItem=function(lid){
-  const idx=localItems.findIndex(x=>x.localId===lid);
-  if(idx!==-1)localItems.splice(idx,1);
-  document.getElementById('lr-'+lid)?.remove();
-  updatePreview();
+window.editItem=function(idx){
+  if(!activeOpenId)return;
+  const r=openCache.find(x=>x.id===activeOpenId);if(!r)return;
+  const it=(r.itens||[])[idx];if(!it)return;
+  editItemIdx=idx;
+  openSheet(it.tipo,it);
 };
 
-// ── SHEET ────────────────────────────────────
-window.openSheet=function(tipo){
+window.deleteItem=function(idx){
+  if(!activeOpenId)return;
+  askConf('Remover este item?',async()=>{
+    const r=openCache.find(x=>x.id===activeOpenId);if(!r)return;
+    const itens=[...(r.itens||[])];
+    itens.splice(idx,1);
+    try{
+      await updateDoc(doc(db,CO,activeOpenId),{itens,updatedAt:Date.now()});
+      showToast('Item removido.');
+    }catch(e){showToast('Erro.',1);}
+  });
+};
+
+// ── SHEET ─────────────────────────────────────────────────
+window.openSheet=function(tipo,existing){
   if(!nome){showToast('Informe seu nome primeiro.',1);return;}
-  // must have a report context
+  // ensure we have or create an open report
   const setor=document.getElementById('f-setor').value.trim();
   const selId=document.getElementById('f-sel').value;
-  if(!setor&&!selId){showToast('Selecione ou crie um setor antes.',1);return;}
+  if(!setor&&!selId&&!activeOpenId){showToast('Selecione ou crie um setor primeiro.',1);return;}
   sheetTipo=tipo;
   const isOcc=tipo==='occ';
-  document.getElementById('sheet-title').textContent=isOcc?'🔧 Nova Ocorrência':'📅 Nova Atividade';
-  document.getElementById('sheet-title').className='sheet-title '+(isOcc?'c-occ':'c-ativ');
-  document.getElementById('sheet-bd').innerHTML=isOcc?buildOccForm():buildAtivForm();
+  document.getElementById('sh-title').textContent=isOcc?'🔧 Ocorrência':'📅 Atividade';
+  document.getElementById('sh-title').className='sheet-title '+(isOcc?'st-occ':'st-ativ');
+  document.getElementById('sh-save-btn').textContent=editItemIdx!==null?'✓ Salvar Alterações':'✓ Confirmar e Salvar';
+  document.getElementById('sh-body').innerHTML=isOcc?buildOccForm(existing):buildAtivForm(existing);
   document.getElementById('ov-sheet').classList.add('on');
 };
 
-window.closeSheet=function(){document.getElementById('ov-sheet').classList.remove('on');sheetTipo=null;};
+window.closeSheet=function(){
+  document.getElementById('ov-sheet').classList.remove('on');
+  sheetTipo=null;editItemIdx=null;
+};
 
-function buildOccForm(){return`
-  <div><div class="slbl" style="margin-bottom:8px">Equipamento</div>
+function buildOccForm(d){
+  d=d||{};
+  return`
+  <div>
+    <div class="slbl" style="margin-bottom:9px">Equipamento</div>
     <div class="fg"><label>Descrição do equipamento</label>
-      <textarea id="sh-eq" rows="2" placeholder="Ex: Bomba centrífuga linha 3..."></textarea>
-    </div></div>
-  <div class="divider"></div>
-  <div style="display:flex;flex-direction:column;gap:10px">
-    <div class="slbl">Falha</div>
-    <div class="fg"><label>Sintoma observado</label>
-      <textarea id="sh-sin" rows="2" placeholder="O que foi observado..."></textarea>
-    </div>
-    <div class="fg"><label>Modo de falha</label>
-      <div class="tg" id="sh-modo">${MODOS.map(m=>`<button class="tbn" onclick="selOT(this)">${m}</button>`).join('')}</div>
-    </div>
-    <div class="fg"><label>Impacto operacional</label>
-      <div class="tg" id="sh-imp">${IMPACTOS.map(m=>`<button class="tbn" onclick="selOT(this)">${m}</button>`).join('')}</div>
+      <textarea id="sh-eq" rows="2" placeholder="Ex: Bomba centrífuga linha 3...">${d.equip||''}</textarea>
     </div>
   </div>
   <div class="divider"></div>
-  <div style="display:flex;flex-direction:column;gap:10px">
+  <div style="display:flex;flex-direction:column;gap:11px">
+    <div class="slbl">Falha</div>
+    <div class="fg"><label>Sintoma observado</label>
+      <textarea id="sh-sin" rows="2" placeholder="O que foi observado...">${d.sintoma||''}</textarea>
+    </div>
+    <div class="fg">
+      <label>Modo de falha</label>
+      <div class="tg">${MODOS.map(m=>`<button type="button" class="tbn${d.modo===m?' on':''}" data-shgroup="sh-modo" onclick="shSelT(this)">${m}</button>`).join('')}</div>
+    </div>
+    <div class="fg">
+      <label>Impacto operacional</label>
+      <div class="tg">${IMPACTOS.map(m=>`<button type="button" class="tbn${d.impacto===m?' on':''}" data-shgroup="sh-imp" onclick="shSelT(this)">${m}</button>`).join('')}</div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div style="display:flex;flex-direction:column;gap:11px">
     <div class="slbl">Solução</div>
-    <div class="fg"><label>Tipo de intervenção</label>
-      <div class="tg" id="sh-tipo">${TIPOS.map(m=>`<button class="tbn" onclick="selOT(this)">${m}</button>`).join('')}</div>
+    <div class="fg">
+      <label>Tipo de intervenção</label>
+      <div class="tg">${TIPOS.map(m=>`<button type="button" class="tbn${d.tipo_int===m?' on':''}" data-shgroup="sh-tipo" onclick="shSelT(this)">${m}</button>`).join('')}</div>
     </div>
     <div class="fg"><label>Descrição da solução</label>
-      <textarea id="sh-sol" rows="2" placeholder="Como foi resolvido..."></textarea>
+      <textarea id="sh-sol" rows="2" placeholder="Como foi resolvido...">${d.solucao||''}</textarea>
     </div>
-  </div>`;}
+  </div>`;
+}
 
-function buildAtivForm(){return`
-  <div><div class="slbl" style="margin-bottom:8px">Atividade</div>
+function buildAtivForm(d){
+  d=d||{};
+  return`
+  <div>
+    <div class="slbl" style="margin-bottom:9px">Atividade</div>
     <div class="fg"><label>Equipamento</label>
-      <textarea id="sh-eq" rows="2" placeholder="Ex: Motor esteira 2..."></textarea>
+      <textarea id="sh-eq" rows="2" placeholder="Ex: Motor esteira 2...">${d.equip||''}</textarea>
     </div>
     <div class="fg" style="margin-top:10px"><label>Descrição da atividade</label>
-      <textarea id="sh-desc" rows="2" placeholder="Descreva a atividade..."></textarea>
-    </div></div>
+      <textarea id="sh-desc" rows="2" placeholder="Descreva a atividade...">${d.desc||''}</textarea>
+    </div>
+  </div>
   <div class="divider"></div>
-  <div class="fg"><label>Status</label>
-    <div class="tg" id="sh-status">${STATUS.map(s=>`<button class="tbn ${SCLS[s]}" onclick="selOT(this)">${s}</button>`).join('')}</div>
-  </div>`;}
+  <div class="fg">
+    <label>Status</label>
+    <div class="tg">${STATUS.map(s=>`<button type="button" class="tbn ${SCLS[s]}${d.status===s?' on':''}" data-shgroup="sh-status" onclick="shSelT(this)">${s}</button>`).join('')}</div>
+  </div>`;
+}
 
 window.confirmSheet=async function(){
-  const tipo=sheetTipo;
-  const isOcc=tipo==='occ';
-  // collect data
-  let it={tipo,autor:nome};
+  const tipo=sheetTipo;const isOcc=tipo==='occ';
+  const it={tipo,autor:nome};
   it.equip=(document.getElementById('sh-eq')?.value||'').trim();
   if(isOcc){
     it.sintoma=(document.getElementById('sh-sin')?.value||'').trim();
-    it.modo=getTg(document.getElementById('sh-modo'));
-    it.impacto=getTg(document.getElementById('sh-imp'));
-    it.tipo_int=getTg(document.getElementById('sh-tipo'));
+    it.modo=getShT('sh-modo');
+    it.impacto=getShT('sh-imp');
+    it.tipo_int=getShT('sh-tipo');
     it.solucao=(document.getElementById('sh-sol')?.value||'').trim();
   }else{
     it.desc=(document.getElementById('sh-desc')?.value||'').trim();
-    it.status=getTg(document.getElementById('sh-status'));
+    it.status=getShT('sh-status');
   }
   if(!it.equip){showToast('Informe o equipamento.',1);return;}
 
-  const btn=document.getElementById('sheet-confirm-btn');
+  const btn=document.getElementById('sh-save-btn');
   btn.textContent='Salvando...';btn.disabled=true;
 
   try{
-    const selId=document.getElementById('f-sel').value;
-    if(selId||activeOpenId){
-      // add item to existing open report
-      const rid=selId||activeOpenId;
-      await updateDoc(doc(db,CO,rid),{itens:arrayUnion(it),updatedAt:Date.now(),editadoPor:nome});
-    } else {
-      // create or update local session (will be saved when "manter aberto" or "fechar")
-      lid++;
-      localItems.push({localId:lid,data:it});
-      renderItemRow(it,lid);
+    // ensure we have an open report
+    if(!activeOpenId){
+      await ensureOpenReport();
     }
+    if(!activeOpenId){btn.textContent='✓ Confirmar e Salvar';btn.disabled=false;return;}
+
+    // get current items
+    const snap=await getDoc(doc(db,CO,activeOpenId));
+    const current=snap.exists()?snap.data():{};
+    const itens=[...(current.itens||[])];
+
+    if(editItemIdx!==null){
+      // preserve original author if editing
+      it.autor=itens[editItemIdx]?.autor||nome;
+      itens[editItemIdx]=it;
+    }else{
+      itens.push(it);
+    }
+
+    await updateDoc(doc(db,CO,activeOpenId),{itens,updatedAt:Date.now(),editadoPor:nome});
     closeSheet();
     updatePreview();
-    showToast('✓ '+(isOcc?'Ocorrência':'Atividade')+' salva!');
-  }catch(e){showToast('Erro ao salvar: '+e.message,1);}
-  finally{btn.textContent='✓ Confirmar e Salvar';btn.disabled=false;}
+    showToast(editItemIdx!==null?'✓ Item atualizado!':'✓ '+(isOcc?'Ocorrência':'Atividade')+' salva!');
+  }catch(e){
+    showToast('Erro: '+e.message,1);
+    console.error(e);
+  }finally{
+    btn.textContent=editItemIdx!==null?'✓ Salvar Alterações':'✓ Confirmar e Salvar';
+    btn.disabled=false;
+  }
 };
 
-// ── GET FORM DATA ─────────────────────────────
-function getFormData(){
-  const selId=document.getElementById('f-sel').value;
-  const setor=document.getElementById('f-setor').value.trim()||
-    (selId?(openCache.find(x=>x.id===selId)||{}).setor||'':'');
-  // merge: items from open report + local new items
-  let existingItems=[];
-  if(selId||activeOpenId){
-    const r=openCache.find(x=>x.id===(selId||activeOpenId));
-    existingItems=(r?.itens)||[];
-  }
-  const allItems=[...existingItems,...localItems.map(x=>x.data)];
-  return{
-    data:document.getElementById('f-data').value,
-    turno:getT('f-turno'),
-    setor,
-    itens:allItems
-  };
+// ── AUTO-CREATE OPEN REPORT ───────────────────────────────
+async function ensureOpenReport(){
+  if(!nome){showToast('Informe seu nome.',1);return;}
+  const setor=getSetor()||document.getElementById('f-setor').value.trim();
+  if(!setor){showToast('Informe o setor.',1);return;}
+  const data=document.getElementById('f-data').value;
+  const turno=getHdrT();
+  try{
+    const ref=await addDoc(collection(db,CO),{setor,data,turno,itens:[],criadoEm:Date.now(),criadoPor:nome});
+    activeOpenId=ref.id;
+    document.getElementById('f-sel').value=ref.id;
+    document.getElementById('f-setor').value='';
+    document.getElementById('auto-ind').style.display='flex';
+    showToast('Relatório criado automaticamente.');
+  }catch(e){showToast('Erro ao criar relatório.',1);console.error(e);}
 }
 
-// ── BUILD TEXTS ───────────────────────────────
-function hdr(d){const df=d.data?new Date(d.data+'T12:00').toLocaleDateString('pt-BR'):'—';return`Setor: ${d.setor||'—'}  |  Data: ${df}  |  Turno: ${d.turno||'—'}`;}
+// ── CLOSE TO HISTORY ──────────────────────────────────────
+window.closeToHist=async function(){
+  if(!nome){showToast('Informe seu nome.',1);return;}
+  const setor=getSetor();
+  if(!setor){showToast('Informe o setor.',1);return;}
+  askConf('Fechar e salvar definitivamente no Histórico?',async()=>{
+    try{
+      setSt('load','Salvando...');
+      if(activeOpenId){
+        const snap=await getDoc(doc(db,CO,activeOpenId));
+        const r=snap.exists()?{id:activeOpenId,...snap.data()}:{};
+        const data=document.getElementById('f-data').value;
+        const turno=getHdrT();
+        await deleteDoc(doc(db,CO,activeOpenId));
+        await addDoc(collection(db,CH),{...r,data,turno,setor,fechadoPor:nome,fechadoEm:Date.now(),criadoEm:r.criadoEm||Date.now(),criadoPor:r.criadoPor||nome});
+      }else{
+        // nothing open yet, just save header with no items
+        const data=document.getElementById('f-data').value;
+        const turno=getHdrT();
+        await addDoc(collection(db,CH),{setor,data,turno,itens:[],criadoEm:Date.now(),criadoPor:nome,fechadoPor:nome,fechadoEm:Date.now()});
+      }
+      setSt('ok','Conectado');showToast('✓ Salvo no histórico!');clearForm(true);
+    }catch(e){setSt('err','Erro: '+e.message);showToast('Erro.',1);}
+  });
+};
 
-// Cópia: sem autor
+// ── PREVIEW ───────────────────────────────────────────────
+function getPreviewData(){
+  const selId=document.getElementById('f-sel').value;
+  const r=selId?openCache.find(x=>x.id===selId):null;
+  const itens=r?.itens||[];
+  return{
+    data:document.getElementById('f-data').value,
+    turno:getHdrT(),
+    setor:getSetor(),
+    itens
+  };
+}
+function hdr(d){const df=d.data?new Date(d.data+'T12:00').toLocaleDateString('pt-BR'):'—';return`Setor: ${d.setor||'—'}  |  Data: ${df}  |  Turno: ${d.turno||'—'}`;}
 function bOcc(d){
   const oc=(d.itens||[]).filter(x=>x.tipo==='occ');
   if(!oc.length)return'📋 *OCORRÊNCIAS DO TURNO*\n'+hdr(d)+'\n\nNenhuma ocorrência registrada.';
@@ -583,98 +688,23 @@ function bAtiv(d){
 }
 function bFull(d){return bOcc(d)+'\n\n'+bAtiv(d);}
 
-// Prévia: com autor
-function pvOcc(d){
-  const oc=(d.itens||[]).filter(x=>x.tipo==='occ');
-  if(!oc.length)return'OCORRÊNCIAS\n'+hdr(d)+'\n\nNenhuma ocorrência.';
-  let t=['OCORRÊNCIAS',hdr(d)];
-  oc.forEach((o,i)=>{t.push(`\n── #${i+1}${o.autor?' ['+o.autor+']':''} ──`);t.push(`Equip.: ${o.equip||'—'}`);t.push(`Sintoma: ${o.sintoma||'—'}`);t.push(`Falha: ${o.modo||'—'} | Impacto: ${o.impacto||'—'}`);t.push(`Tipo: ${o.tipo_int||'—'} | Sol.: ${o.solucao||'—'}`);});
-  return t.join('\n');
-}
-function pvAtiv(d){
-  const av=(d.itens||[]).filter(x=>x.tipo==='ativ');
-  if(!av.length)return'ATIVIDADES\n'+hdr(d)+'\n\nNenhuma atividade.';
-  let t=['ATIVIDADES',hdr(d)];
-  av.forEach((a,i)=>{t.push(`\n── #${i+1}${a.autor?' ['+a.autor+']':''} ──`);t.push(`Equip.: ${a.equip||'—'} | ${a.desc||'—'}`);t.push(`Status: ${SEMI[a.status]||''} ${a.status||'—'}`);});
-  return t.join('\n');
-}
-
 window.updatePreview=function(){
-  const d=getFormData();
-  document.getElementById('pb-o').textContent=pvOcc(d);
-  document.getElementById('pb-a').textContent=pvAtiv(d);
-  document.getElementById('pb-f').textContent=pvOcc(d)+'\n\n'+pvAtiv(d);
+  const d=getPreviewData();
+  document.getElementById('pb-o').textContent=bOcc(d);
+  document.getElementById('pb-a').textContent=bAtiv(d);
+  document.getElementById('pb-f').textContent=bFull(d);
 };
 
-// ── SAVE OPEN ─────────────────────────────────
-window.saveAsOpen=async function(){
-  const d=getFormData();
-  if(!nome){showToast('Informe seu nome.',1);return;}
-  if(!d.setor){showToast('Informe o setor.',1);return;}
-  try{
-    setSt('load','Salvando...');
-    const selId=document.getElementById('f-sel').value;
-    if(selId){
-      // update header only (items already saved individually)
-      await updateDoc(doc(db,CO,selId),{data:d.data,turno:d.turno,setor:d.setor,updatedAt:Date.now(),editadoPor:nome});
-    }else{
-      // new open report with local items
-      await addDoc(collection(db,CO),{...d,criadoEm:Date.now(),criadoPor:nome});
-    }
-    setSt('ok','Conectado');showToast('✓ Mantido aberto!');clearForm(true);
-  }catch(e){setSt('err','Erro: '+e.message);showToast('Erro.',1);}
-};
-
-window.closeToHist=async function(){
-  const d=getFormData();
-  if(!nome){showToast('Informe seu nome.',1);return;}
-  if(!d.setor){showToast('Informe o setor.',1);return;}
-  askConf('Fechar e salvar no Histórico?',async()=>{
-    try{
-      setSt('load','Salvando...');
-      const selId=document.getElementById('f-sel').value;
-      if(selId){
-        // delete from open, save to hist
-        const r=openCache.find(x=>x.id===selId)||{};
-        const merged={...r,...d,itens:[...(r.itens||[]),...localItems.map(x=>x.data)]};
-        await deleteDoc(doc(db,CO,selId));
-        await addDoc(collection(db,CH),{...merged,criadoEm:r.criadoEm||Date.now(),criadoPor:r.criadoPor||nome,fechadoPor:nome,fechadoEm:Date.now()});
-      }else{
-        await addDoc(collection(db,CH),{...d,criadoEm:Date.now(),criadoPor:nome,fechadoPor:nome});
-      }
-      setSt('ok','Conectado');showToast('✓ Salvo no histórico!');clearForm(true);
-    }catch(e){setSt('err','Erro: '+e.message);showToast('Erro.',1);}
-  });
-};
-
-// ── REALTIME ─────────────────────────────────
+// ── REALTIME ──────────────────────────────────────────────
 function startRT(){
   onSnapshot(query(collection(db,CO),orderBy('criadoEm','desc')),snap=>{
     openCache=snap.docs.map(d=>({id:d.id,...d.data()}));
     document.getElementById('cnt-open').textContent=openCache.length;
     refreshSel();
-    // refresh items list if viewing an open report
-    const selId=document.getElementById('f-sel').value;
-    if(selId){
-      const r=openCache.find(x=>x.id===selId);
-      if(r){
-        // re-render existing items (keep local items at end)
-        const list=document.getElementById('items-list');
-        // remove rows without a local id
-        list.querySelectorAll('.item-row:not([id])').forEach(e=>e.remove());
-        // re-prepend existing
-        const frag=document.createDocumentFragment();
-        (r.itens||[]).forEach(it=>{
-          const el=document.createElement('div');
-          const isOcc=it.tipo==='occ';
-          const dot=isOcc?'sdot-g':(it.status?{Concluída:'sdot-g','Em andamento':'sdot-b',Pendente:'sdot-r'}[it.status]||'sdot-m':'sdot-m');
-          const sub=isOcc?`${it.modo||'—'} · ${it.impacto||'—'} · ${it.tipo_int||'—'}`:`${it.desc||'—'} · ${SEMI[it.status]||''} ${it.status||'—'}`;
-          el.className=`item-row tipo-${it.tipo}`;
-          el.innerHTML=`<span class="item-badge ${isOcc?'ib-o':'ib-a'}">${isOcc?'🔧':'📅'}</span><div class="item-text"><strong>${it.equip||'(sem equipamento)'}</strong><span>${sub}${it.autor?' · <em>'+it.autor+'</em>':''}</span></div><span class="item-sdot ${dot}"></span><div class="item-actions"><span style="width:32px"></span></div>`;
-          frag.appendChild(el);
-        });
-        list.insertBefore(frag,list.firstChild);
-      }
+    // live update items if we're viewing an open report
+    if(activeOpenId){
+      const r=openCache.find(x=>x.id===activeOpenId);
+      if(r)renderItemsFromCache(r);
     }
     updatePreview();
     if(document.getElementById('pg-abertos').classList.contains('on'))renderOpen();
@@ -689,10 +719,10 @@ function startRT(){
   },e=>setSt('err','Erro: '+e.message));
 }
 
-// ── RENDER OPEN ───────────────────────────────
+// ── RENDER OPEN ───────────────────────────────────────────
 function renderOpen(){
   const el=document.getElementById('open-list');
-  if(!openCache.length){el.innerHTML=`<div class="empty"><div class="ico">◉</div><p>Nenhum relatório aberto.</p><p style="margin-top:5px;font-size:11px;color:var(--mut)">Crie um na aba Novo → "Manter Aberto".</p></div>`;return;}
+  if(!openCache.length){el.innerHTML=`<div class="empty"><div class="ico">◉</div><p>Nenhum relatório aberto.</p><p style="margin-top:5px;font-size:11px;color:var(--mut)">Preencha a aba Novo — o relatório é salvo automaticamente.</p></div>`;return;}
   el.innerHTML=openCache.map(r=>{
     const df=r.data?new Date(r.data+'T12:00').toLocaleDateString('pt-BR'):'Sem data';
     const oc=(r.itens||[]).filter(x=>x.tipo==='occ').length;
@@ -700,9 +730,9 @@ function renderOpen(){
     const rows=(r.itens||[]).slice(0,5).map(it=>{
       const isOcc=it.tipo==='occ';
       return`<div class="item-row tipo-${it.tipo}" style="background:var(--surf3)">
-        <span class="item-badge ${isOcc?'ib-o':'ib-a'}">${isOcc?'🔧':'📅'}</span>
-        <div class="item-text"><strong>${it.equip||'—'}</strong><span>${isOcc?(it.sintoma||''):(it.desc||'')}${it.autor?' · <em>'+it.autor+'</em>':''}</span></div>
-        ${it.status?`<span style="font-size:14px">${SEMI[it.status]||''}</span>`:''}
+        <span class="ibadge ${isOcc?'ib-o':'ib-a'}">${isOcc?'🔧':'📅'}</span>
+        <div class="item-txt"><strong>${it.equip||'—'}</strong><span>${isOcc?(it.sintoma||'—'):(it.desc||'—')}${it.autor?' · <em>'+it.autor+'</em>':''}</span></div>
+        ${it.status?`<span>${SEMI[it.status]||''}</span>`:''}
       </div>`;
     }).join('');
     return`<div class="ocard">
@@ -720,31 +750,23 @@ function renderOpen(){
 
 window.contribuir=function(id){
   const r=openCache.find(x=>x.id===id);if(!r)return;
-  // go to Novo tab, select this open report
   showPg('novo',document.querySelector('.tb'));
   document.getElementById('f-sel').value=id;
   onSelChange();
-  showToast('Carregado — adicione itens e confirme.');
+  showToast('Carregado — adicione ocorrências ou atividades.');
 };
-
 window.fecharOpen=function(id){
   const r=openCache.find(x=>x.id===id);if(!r)return;
-  if(!nome){showToast('Informe seu nome primeiro.',1);return;}
-  askConf('Mover para o Histórico?',async()=>{
-    try{
-      await deleteDoc(doc(db,CO,id));
-      await addDoc(collection(db,CH),{...r,fechadoPor:nome,fechadoEm:Date.now()});
-      showToast('Fechado e salvo!');
-    }catch(e){showToast('Erro.',1);}
+  if(!nome){showToast('Informe seu nome.',1);return;}
+  askConf('Mover este relatório para o Histórico?',async()=>{
+    try{await deleteDoc(doc(db,CO,id));await addDoc(collection(db,CH),{...r,fechadoPor:nome,fechadoEm:Date.now()});showToast('Fechado e salvo!');}
+    catch(e){showToast('Erro.',1);}
   });
 };
 window.delOpen=function(id){askConf('Excluir este relatório aberto?',async()=>{try{await deleteDoc(doc(db,CO,id));showToast('Excluído.');}catch(e){showToast('Erro.',1);}});};
-window.viewOpen=function(id){
-  const r=openCache.find(x=>x.id===id);if(!r)return;
-  openViewModal(r,false);
-};
+window.viewOpen=function(id){const r=openCache.find(x=>x.id===id);if(r)openViewModal(r,false);};
 
-// ── RENDER HISTORY ────────────────────────────
+// ── HISTORY ───────────────────────────────────────────────
 function renderHistory(){
   const el=document.getElementById('hist-list');
   if(!histCache.length){el.innerHTML=`<div class="empty"><div class="ico">📋</div><p>Nenhum relatório no histórico.</p></div>`;return;}
@@ -753,33 +775,29 @@ function renderHistory(){
     const oc=(r.itens||[]).filter(x=>x.tipo==='occ').length;
     const av=(r.itens||[]).filter(x=>x.tipo==='ativ').length;
     return`<div class="hcard">
-      <div class="hcard-hd" onclick="viewHist('${r.id}')"><div style="flex:1"><div class="hcard-date">${r.setor||'Sem setor'} — ${df}</div><div class="hcard-sub">${r.turno||'?'} · ${r.criadoPor||'—'}${r.fechadoPor?' · fechado: '+r.fechadoPor:''}</div></div>
+      <div class="hcard-hd" onclick="viewHist('${r.id}')"><div style="flex:1"><div class="hdate">${r.setor||'Sem setor'} — ${df}</div><div class="hsub">${r.turno||'?'} · ${r.criadoPor||'—'}${r.fechadoPor?' · fechado: '+r.fechadoPor:''}</div></div>
       <div class="htags">${r.turno?`<span class="tag tag-t">${r.turno}</span>`:''} ${oc?`<span class="tag tag-o">🔧 ${oc}</span>`:''} ${av?`<span class="tag tag-a">📅 ${av}</span>`:''}</div></div>
       <div class="hcard-foot"><button class="btn btn-grn" onclick="viewHist('${r.id}')">👁 Ver</button><button class="btn btn-red" onclick="delHist('${r.id}')">🗑 Excluir</button></div>
     </div>`;
   }).join('');
 }
-
 window.viewHist=function(id){const r=histCache.find(x=>x.id===id);if(r)openViewModal(r,true);};
 window.delHist=function(id){askConf('Excluir este relatório do histórico?',async()=>{try{await deleteDoc(doc(db,CH,id));showToast('Excluído.');}catch(e){showToast('Erro.',1);}});};
 
-function openViewModal(r,canEdit){
+function openViewModal(r,canDel){
   const df=r.data?new Date(r.data+'T12:00').toLocaleDateString('pt-BR'):'Sem data';
   document.getElementById('view-title').textContent=`${r.setor||'—'} — ${df} ${r.turno||''}`;
   document.getElementById('mt-o').textContent=bOcc(r);
   document.getElementById('mt-a').textContent=bAtiv(r);
   document.getElementById('mt-f').textContent=bFull(r);
-  // edit/del buttons
-  const eb=document.getElementById('mod-edit-btn');
-  const db_=document.getElementById('mod-del-btn');
-  eb.style.display=canEdit?'':'none';
-  db_.style.display=canEdit?'':'none';
-  if(canEdit){eb.onclick=()=>{closeOv('ov-view');};db_.onclick=()=>delHist(r.id);}
+  const db_btn=document.getElementById('mod-del-btn');
+  db_btn.style.display=canDel?'':'none';
+  if(canDel)db_btn.onclick=()=>{closeOv('ov-view');delHist(r.id);};
   resetMtabs();
   document.getElementById('ov-view').classList.add('on');
 }
 
-// ── HELPERS ───────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────
 window.closeOv=function(id){document.getElementById(id).classList.remove('on');};
 window.copyActivePrev=function(){const a=document.querySelector('.ipanel.on .pbox');if(a)navigator.clipboard.writeText(a.textContent).then(()=>showToast('✓ Copiado!')).catch(()=>showToast('Erro',1));};
 window.copyActiveMod=function(){const a=document.querySelector('.mpanel.on .mbox');if(a)navigator.clipboard.writeText(a.textContent).then(()=>showToast('✓ Copiado!')).catch(()=>showToast('Erro',1));};
@@ -791,8 +809,8 @@ function askConf(msg,cb){confCb=cb;document.getElementById('conf-msg').textConte
 
 window.clearForm=function(silent){
   if(!silent&&!confirm('Limpar formulário?'))return;
-  activeOpenId=null;localItems.length=0;
-  document.getElementById('edit-ind').style.display='none';
+  activeOpenId=null;editItemIdx=null;
+  document.getElementById('auto-ind').style.display='none';
   document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
   document.querySelectorAll('#f-turno .tbn').forEach(b=>b.classList.remove('on'));
   document.getElementById('f-sel').value='';
@@ -810,12 +828,6 @@ window.showPg=function(id,btn){
   if(id==='hist')renderHistory();
 };
 
-function showToast(msg,err){
-  const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');
-  void t.offsetWidth;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2500);
-}
-
-// close overlays on bg click
 document.querySelectorAll('.ov').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');}));
 
 // INIT
