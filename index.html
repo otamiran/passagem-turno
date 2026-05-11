@@ -84,10 +84,21 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sdot-g{background:var(--grn)}.sdot-b{background:var(--blue)}.sdot-r{background:var(--red)}.sdot-m{background:var(--mut)}
 .item-btns{display:flex;gap:5px;flex-shrink:0}
+.btn-wa{background:#075e54;border-color:#128c7e;color:#fff}.btn-wa:hover{background:#128c7e}
+.btn-full{width:100%;justify-content:center;padding:10px;font-size:11px}
+/* WA MODAL */
+.wa-modal{background:var(--surf);border:1px solid var(--brd2);border-top:3px solid #25d366;border-radius:var(--rl);max-width:460px;width:100%;overflow:hidden}
+.wa-modal-hd{padding:13px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px}
+.wa-modal-hd h2{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#25d366;flex:1}
+.wa-preview{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--txt);font-family:var(--sans);font-size:12px;line-height:1.6;padding:11px;white-space:pre-wrap;word-break:break-word;max-height:260px;overflow-y:auto}
+.wa-status{font-family:var(--mono);font-size:10px;padding:6px 10px;border-radius:var(--r);display:flex;align-items:center;gap:6px}
+.wa-st-load{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);color:var(--acc)}
+.wa-st-ok{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366}
+.wa-st-err{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);color:var(--red)}
 
 /* OVERLAY */
 .ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:300;padding:0;align-items:flex-end;justify-content:center}
-.ov.on{display:flex; align-items:center}
+.ov.on{display:flex}
 .ov-center{align-items:center;padding:16px}
 
 /* BOTTOM SHEET */
@@ -171,7 +182,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 <body>
 
 <nav class="nav">
-  <div class="nav-brand"><div class="hex"></div><span class="nav-title">Gerador de relatório de passagem de turno</span></div>
+  <div class="nav-brand"><div class="hex"></div><span class="nav-title">Turno</span></div>
   <div class="nav-tabs">
     <button class="tb on" onclick="showPg('novo',this)">✦ Novo</button>
     <button class="tb" onclick="showPg('abertos',this)">◉ Abertos <span class="tbadge tbadge-b" id="cnt-open">0</span></button>
@@ -241,7 +252,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
       <div class="ipanel on" id="pv-o"><div class="pbox" id="pb-o">—</div></div>
       <div class="ipanel" id="pv-a"><div class="pbox" id="pb-a">—</div></div>
       <div class="ipanel" id="pv-f"><div class="pbox" id="pb-f">—</div></div>
-      <button class="btn btn-grn btn-full" onclick="copyActivePrev()">📋 Copiar Mensagem Visível</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-grn btn-full" onclick="copyActivePrev()">📋 Copiar</button>
+        <button class="btn btn-wa btn-full" onclick="openWaModal()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Enviar via WhatsApp
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -835,7 +852,127 @@ document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
 try{const n=localStorage.getItem('tn');if(n){nome=n;document.getElementById('f-nome').value=n;document.getElementById('nbanner').innerHTML=`<div class="nbanner"><span class="puls"></span>Logado como <strong>${n}</strong></div>`;}}catch(e){}
 updatePreview();
 startRT();
+
+// ── WHATSAPP + AI REVIEW ────────────────────────────────
+let waRevisedText = '';
+let waCurrentType = 'full';
+
+window.openWaModal = function(){
+  waCurrentType = 'full';
+  waRevisedText = '';
+  document.querySelectorAll('[data-watype]').forEach(b=>b.classList.toggle('on', b.dataset.watype==='full'));
+  document.getElementById('wa-preview').textContent = 'Aguarde — revisando com IA...';
+  document.getElementById('ov-wa').classList.add('on');
+  reviewWithAI('full');
+};
+
+window.selWaType = function(btn){
+  document.querySelectorAll('[data-watype]').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  waCurrentType = btn.dataset.watype;
+  waRevisedText = '';
+  document.getElementById('wa-preview').textContent = 'Aguarde — revisando com IA...';
+  reviewWithAI(waCurrentType);
+};
+
+async function reviewWithAI(type){
+  const d = getPreviewData();
+  let raw = '';
+  if(type==='occ') raw = bOcc(d);
+  else if(type==='ativ') raw = bAtiv(d);
+  else raw = bFull(d);
+
+  const st = document.getElementById('wa-status');
+  const stTxt = document.getElementById('wa-status-txt');
+  st.style.display = 'flex';
+  st.className = 'wa-status wa-st-load';
+  stTxt.textContent = 'Revisando gramática com IA...';
+  document.getElementById('wa-send-btn').disabled = true;
+  document.getElementById('wa-preview').textContent = 'Aguarde...';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Você é um revisor de textos técnicos industriais em português brasileiro.
+Sua tarefa: receber um relatório de passagem de turno de manutenção e devolver o texto com a gramática, ortografia e pontuação corrigidas.
+REGRAS ESTRITAS:
+- Mantenha EXATAMENTE a mesma estrutura, emojis, asteriscos e formatação do original
+- Corrija apenas erros gramaticais, ortográficos e de concordância
+- Não adicione, remova nem reescreva frases — apenas corrija erros
+- Não adicione explicações, comentários ou prefácio
+- Devolva APENAS o texto corrigido, sem nada mais`,
+        messages: [{ role: 'user', content: raw }]
+      })
+    });
+    const data = await resp.json();
+    const revised = data.content?.map(c=>c.text||'').join('').trim();
+    if(!revised || data.error) throw new Error(data.error?.message || 'Resposta vazia');
+    waRevisedText = revised;
+    document.getElementById('wa-preview').textContent = revised;
+    st.className = 'wa-status wa-st-ok';
+    stTxt.textContent = '✓ Gramática revisada pela IA';
+    document.getElementById('wa-send-btn').disabled = false;
+  } catch(e) {
+    // fallback: use original text
+    waRevisedText = raw;
+    document.getElementById('wa-preview').textContent = raw;
+    st.className = 'wa-status wa-st-err';
+    stTxt.textContent = '⚠ Revisão indisponível — texto original será usado';
+    document.getElementById('wa-send-btn').disabled = false;
+  }
+}
+
+window.sendWhatsApp = function(){
+  const num = document.getElementById('wa-num').value.replace(/\D/g,'');
+  if(!num || num.length < 10){showToast('Informe um número válido.',1);return;}
+  if(!waRevisedText){showToast('Aguarde a revisão concluir.',1);return;}
+  const url = `https://wa.me/${num}?text=${encodeURIComponent(waRevisedText)}`;
+  window.open(url, '_blank');
+  closeOv('ov-wa');
+  showToast('WhatsApp aberto!');
+};
+
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 </script>
+
+<!-- WA MODAL -->
+<div class="ov ov-center" id="ov-wa">
+  <div class="wa-modal">
+    <div class="wa-modal-hd">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <h2>Enviar via WhatsApp</h2>
+      <button class="mc" onclick="closeOv('ov-wa')">✕</button>
+    </div>
+    <div class="modal-body" style="gap:12px">
+      <div class="fg">
+        <label>Número do destinatário (com DDD e código do país)</label>
+        <input type="tel" id="wa-num" placeholder="Ex: 5583999998888" style="font-family:var(--mono)">
+        <span style="font-size:10px;color:var(--mut)">Formato: 55 + DDD + número (somente dígitos)</span>
+      </div>
+      <div class="fg">
+        <label>Mensagem a enviar</label>
+        <div class="tg" style="margin-bottom:6px">
+          <button class="tbn on" data-watype="full" onclick="selWaType(this)">📋 Completo</button>
+          <button class="tbn" data-watype="occ" onclick="selWaType(this)">🔧 Só Ocorrências</button>
+          <button class="tbn" data-watype="ativ" onclick="selWaType(this)">📅 Só Atividades</button>
+        </div>
+        <div id="wa-status" class="wa-status wa-st-load" style="display:none"><span class="puls"></span><span id="wa-status-txt">Revisando gramática com IA...</span></div>
+        <div class="wa-preview" id="wa-preview">Selecione o tipo de mensagem acima...</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeOv('ov-wa')" style="flex:1;justify-content:center">Cancelar</button>
+        <button class="btn btn-wa" onclick="sendWhatsApp()" id="wa-send-btn" style="flex:2;justify-content:center">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Abrir WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
