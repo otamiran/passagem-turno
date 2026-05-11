@@ -1,10 +1,20 @@
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import{getFirestore,collection,addDoc,doc,updateDoc,deleteDoc,orderBy,query,onSnapshot,getDoc}
-  from'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getFirestore, collection, addDoc, doc,
+  updateDoc, deleteDoc, orderBy,
+  query, onSnapshot, getDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-const FC={apiKey:"AIzaSyCFUBsmpZkK4SzZFinK89nrl1dj28VCAYY",authDomain:"passagem-turno-3c668.firebaseapp.com",projectId:"passagem-turno-3c668",storageBucket:"passagem-turno-3c668.firebasestorage.app",messagingSenderId:"942055408398",appId:"1:942055408398:web:05c846a291f2edf91e0d5f"};
-const db=getFirestore(initializeApp(FC));
-const CO='relatorios_abertos', CH='relatorios';
+const db = getFirestore(initializeApp({
+  apiKey:"AIzaSyCFUBsmpZkK4SzZFinK89nrl1dj28VCAYY",
+  authDomain:"passagem-turno-3c668.firebaseapp.com",
+  projectId:"passagem-turno-3c668",
+  storageBucket:"passagem-turno-3c668.appspot.com",
+  messagingSenderId:"942055408398",
+  appId:"1:942055408398:web:05c846a291f2edf91e0d5f"
+}));
+
+const [CO, CH] = ['relatorios_abertos', 'relatorios'];
 
 const MODOS=['Elétrico','Mecânico','Instrumental','Processo','Outro'];
 const IMPACTOS=['Parada total','Redução de capacidade','Sem impacto'];
