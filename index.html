@@ -891,7 +891,7 @@ async function reviewWithAI(type){
   document.getElementById('wa-preview').textContent = 'Aguarde...';
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://turno-proxy.otamiranex.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
