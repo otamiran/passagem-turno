@@ -430,7 +430,17 @@ window.fecharOpen=function(id){
     catch(e){showToast('Erro.',1);}
   });
 };
-window.delOpen=function(id){askConf('Excluir este relatório aberto?',async()=>{try{await deleteDoc(doc(db,CO,id));showToast('Excluído.');}catch(e){showToast('Erro.',1);}});};
+window.delOpen=function(id){
+  askConf('Excluir este relatório aberto?',async()=>{
+    try{
+      await deleteDoc(doc(db,CO,id));
+      showToast('Excluído.');
+    }catch(e){
+      showToast('Erro: '+e.message,1);
+      console.error('delOpen',e);
+    }
+  });
+};
 window.viewOpen=function(id){const r=openCache.find(x=>x.id===id);if(r)openViewModal(r,false,false);};
 
 // ── HISTORY ───────────────────────────────────────────────
@@ -455,13 +465,15 @@ function renderHistory(){
 
 window.viewHist=function(id){const r=histCache.find(x=>x.id===id);if(r)openViewModal(r,true,false);};
 
-// FIX: Excluir do histórico — usa coleção correta CH
 window.delHist=function(id){
   askConf('Excluir este relatório do histórico?',async()=>{
     try{
       await deleteDoc(doc(db,CH,id));
       showToast('Excluído.');
-    }catch(e){showToast('Erro ao excluir.',1);console.error(e);}
+    }catch(e){
+      showToast('Erro: '+e.message,1);
+      console.error('delHist',e);
+    }
   });
 };
 
@@ -536,7 +548,10 @@ window.showPg=function(id,btn){
   if(id==='hist')renderHistory();
 };
 
-document.querySelectorAll('.ov').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');}));
+document.querySelectorAll('.ov').forEach(ov=>{
+  if(ov.id==='ov-confirm')return; // confirmação só fecha por botão
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});
+});
 
 // ── WHATSAPP ──────────────────────────────────────────────
 let waCurrentType='full';
