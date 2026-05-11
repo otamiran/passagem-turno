@@ -538,85 +538,34 @@ window.showPg=function(id,btn){
 
 document.querySelectorAll('.ov').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');}));
 
-// ── WHATSAPP + AI REVIEW ──────────────────────────────────
-let waRevisedText='';
+// ── WHATSAPP ──────────────────────────────────────────────
 let waCurrentType='full';
+
+function getWaText(){
+  const d=getPreviewData();
+  if(waCurrentType==='occ')return bOcc(d);
+  if(waCurrentType==='ativ')return bAtiv(d);
+  return bFull(d);
+}
 
 window.openWaModal=function(){
   waCurrentType='full';
-  waRevisedText='';
   document.querySelectorAll('[data-watype]').forEach(b=>b.classList.toggle('on',b.dataset.watype==='full'));
-  document.getElementById('wa-preview').textContent='Aguarde — revisando com IA...';
-  document.getElementById('wa-status').style.display='flex';
+  document.getElementById('wa-preview').textContent=getWaText();
   document.getElementById('ov-wa').classList.add('on');
-  reviewWithAI('full');
 };
 
 window.selWaType=function(btn){
   document.querySelectorAll('[data-watype]').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   waCurrentType=btn.dataset.watype;
-  waRevisedText='';
-  document.getElementById('wa-preview').textContent='Aguarde — revisando com IA...';
-  reviewWithAI(waCurrentType);
+  document.getElementById('wa-preview').textContent=getWaText();
 };
-
-async function reviewWithAI(type){
-  const d=getPreviewData();
-  let raw='';
-  if(type==='occ')raw=bOcc(d);
-  else if(type==='ativ')raw=bAtiv(d);
-  else raw=bFull(d);
-
-  const st=document.getElementById('wa-status');
-  const stTxt=document.getElementById('wa-status-txt');
-  st.style.display='flex';
-  st.className='wa-status wa-st-load';
-  stTxt.textContent='Revisando gramática com IA...';
-  document.getElementById('wa-send-btn').disabled=true;
-  document.getElementById('wa-preview').textContent='Aguarde...';
-
-  try{
-    const resp=await fetch('https://turno-proxy.otamiranex.workers.dev',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:`Você é um revisor de textos técnicos industriais em português brasileiro.
-Sua tarefa: receber um relatório de passagem de turno de manutenção e devolver o texto com a gramática, ortografia e pontuação corrigidas.
-REGRAS ESTRITAS:
-- Mantenha EXATAMENTE a mesma estrutura, emojis, asteriscos e formatação do original
-- Corrija apenas erros gramaticais, ortográficos e de concordância
-- Não adicione, remova nem reescreva frases — apenas corrija erros
-- Não adicione explicações, comentários ou prefácio
-- Devolva APENAS o texto corrigido, sem nada mais`,
-        messages:[{role:'user',content:raw}]
-      })
-    });
-    const data=await resp.json();
-    // Suporte a resposta direta do Gemini (via proxy) ou formato Anthropic
-    const revised=(data.content?.map(c=>c.text||'').join('')||'').trim();
-    if(!revised||data.error)throw new Error(data.error?.message||'Resposta vazia');
-    waRevisedText=revised;
-    document.getElementById('wa-preview').textContent=revised;
-    st.className='wa-status wa-st-ok';
-    stTxt.textContent='✓ Gramática revisada pela IA';
-    document.getElementById('wa-send-btn').disabled=false;
-  }catch(e){
-    waRevisedText=raw;
-    document.getElementById('wa-preview').textContent=raw;
-    st.className='wa-status wa-st-err';
-    stTxt.textContent='⚠ Revisão indisponível — texto original será usado';
-    document.getElementById('wa-send-btn').disabled=false;
-  }
-}
 
 window.sendWhatsApp=function(){
   const num=document.getElementById('wa-num').value.replace(/\D/g,'');
   if(!num||num.length<10){showToast('Informe um número válido.',1);return;}
-  if(!waRevisedText){showToast('Aguarde a revisão concluir.',1);return;}
-  const url=`https://wa.me/${num}?text=${encodeURIComponent(waRevisedText)}`;
+  const url=`https://wa.me/${num}?text=${encodeURIComponent(getWaText())}`;
   window.open(url,'_blank');
   closeOv('ov-wa');
   showToast('WhatsApp aberto!');

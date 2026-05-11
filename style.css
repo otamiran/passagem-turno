@@ -140,10 +140,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .wa-modal-hd{padding:13px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px}
 .wa-modal-hd h2{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#25d366;flex:1}
 .wa-preview{background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--txt);font-family:var(--sans);font-size:12px;line-height:1.6;padding:11px;white-space:pre-wrap;word-break:break-word;max-height:260px;overflow-y:auto}
-.wa-status{font-family:var(--mono);font-size:10px;padding:6px 10px;border-radius:var(--r);display:flex;align-items:center;gap:6px}
-.wa-st-load{background:rgba(240,165,0,.1);border:1px solid rgba(240,165,0,.3);color:var(--acc)}
-.wa-st-ok{background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366}
-.wa-st-err{background:rgba(224,80,80,.1);border:1px solid rgba(224,80,80,.3);color:var(--red)}
 
 .confirm-bd{text-align:center;padding:20px 14px}
 .confirm-bd p{color:var(--lbl);font-size:13px;line-height:1.6;margin-bottom:18px}
