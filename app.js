@@ -421,8 +421,6 @@ function renderOpen(){
         <button class="btn btn-grn" onclick="viewOpen('${r.id}')">👁 Ver</button>
         <button class="btn btn-acc" onclick="fecharOpen('${r.id}')">✓ Fechar</button>
         <button class="btn btn-red" onclick="delOpen('${r.id}')" >🗑</button>
-                            document.querySelector(".btn btn-red").addEventListener("click", function() {
-                        location.reload();
       </div></div>`;
   }).join('');
 }
