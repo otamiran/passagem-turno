@@ -24,9 +24,6 @@ const db      = getFirestore(app);
 const storage = getStorage(app);
 const auth    = getAuth(app);
 
-// Auto sign-in anonimamente — necessário para as regras de segurança do Firebase
-signInAnonymously(auth).catch(e => console.error('Auth error:', e));
-
 const [CO, CH] = ['relatorios_abertos', 'relatorios'];
 const MODOS    = ['Elétrico','Mecânico','Instrumental','Processo','Outro'];
 const IMPACTOS = ['Parada total','Redução de capacidade','Sem impacto'];
@@ -822,5 +819,19 @@ document.querySelectorAll('.ov').forEach(ov=>{
 document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
 try{const n=localStorage.getItem('tn');if(n){nome=n;document.getElementById('f-nome').value=n;document.getElementById('nbanner').innerHTML=`<div class="nbanner"><span class="puls"></span>Logado como <strong>${n}</strong></div>`;}}catch(e){}
 updatePreview();
-startRT();
+
+// Autenticação anônima — inicia o app só após autenticar
+setSt('load','Autenticando...');
+signInAnonymously(auth)
+  .then(()=>{
+    setSt('load','Conectando ao banco de dados...');
+    startRT();
+  })
+  .catch(e=>{
+    console.error('Auth error:',e);
+    // Se falhar auth (ex: domínio não autorizado), tenta conectar mesmo assim
+    setSt('err','Aviso: autenticação falhou ('+e.code+'). Verifique os domínios no Firebase Authentication.');
+    startRT();
+  });
+
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
