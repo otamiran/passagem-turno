@@ -409,7 +409,6 @@ function bOcc(d) {
     t.push(`Modo de falha: ${o.modo || '—'}  |  Impacto: ${o.impacto || '—'}`);
     t.push(`Intervenção: ${o.tipo_int || '—'}`);
     t.push(`Solução: ${o.solucao || '—'}`);
-    if (o.fotos?.length) t.push(`📷 ${o.fotos.length} foto(s) anexada(s)`);
   });
   t.push('─────────────────────'); return t.join('\n');
 }
@@ -423,7 +422,6 @@ function bAtiv(d) {
     t.push(`Equipamento: ${a.equip || '—'}`);
     t.push(`Atividade: ${a.desc || '—'}`);
     t.push(`Status: ${a.status || '—'}`);
-    if (a.fotos?.length) t.push(`📷 ${a.fotos.length} foto(s) anexada(s)`);
   });
   t.push('─────────────────────'); return t.join('\n');
 }
