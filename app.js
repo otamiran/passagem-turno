@@ -949,17 +949,22 @@ window.loadAlmoxFile = async function (e) {
         // Clear existing descs
         await sb.from(ALMOX_DESCS).delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
-        // Insert in batches of 100
-        for (let i = 0; i < items.length; i += 100) {
-          const batch = items.slice(i, i + 100);
+        // Insert in batches of 500 (suporta até 10.000+ linhas)
+        const BATCH = 500;
+        const total = items.length;
+        for (let i = 0; i < total; i += BATCH) {
+          const batch = items.slice(i, i + BATCH);
           const { error } = await sb.from(ALMOX_TABLE).insert(batch);
           if (error) throw error;
+          const pct = Math.round(((i + batch.length) / total) * 100);
+          document.getElementById('almox-file-info').textContent =
+            `Enviando... ${i + batch.length} / ${total} itens (${pct}%)`;
         }
 
         almoxLoaded = false;
         await loadAlmoxFromDB();
-        document.getElementById('almox-file-info').textContent = `${file.name} — ${items.length} itens`;
-        showToast(`✓ ${items.length} itens importados para todos!`);
+        document.getElementById('almox-file-info').textContent = `${file.name} — ${total} itens`;
+        showToast(`\u2713 ${total} itens importados para todos!`);
       } catch (err) { showToast('Erro: ' + err.message, 1); }
     };
     reader.readAsArrayBuffer(file);
