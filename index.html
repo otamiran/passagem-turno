@@ -219,20 +219,24 @@
 <!-- ALMOXARIFADO MODAL -->
 <div class="ov ov-center" id="ov-almox">
   <div class="almox-modal">
-    <div class="almox-hd">
+
+    <div class="almox-hd" id="almox-admin-bar">
       <div style="display:flex;align-items:center;gap:10px;flex:1">
         <span style="font-size:20px">📦</span>
         <div>
           <h2 style="font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc)">Lista do Almoxarifado</h2>
-          <div id="almox-file-info" style="font-size:10px;color:var(--mut);font-family:var(--mono)">Nenhuma planilha carregada</div>
+          <div id="almox-file-info" style="font-size:10px;color:var(--mut);font-family:var(--mono)">Carregando...</div>
         </div>
       </div>
-      <div style="display:flex;align-items:center;gap:7px">
-        <button class="btn btn-acc" onclick="document.getElementById('almox-file-input').click()" style="font-size:10px;padding:7px 12px">📂 Importar Excel</button>
+      <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+        <button id="almox-import-btn" class="btn btn-acc" onclick="almoxImportClick()" style="font-size:10px;padding:7px 12px;display:none">📂 Importar Excel</button>
+        <button id="almox-clear-btn" class="btn btn-red" onclick="almoxClearList()" style="font-size:10px;padding:7px 10px;display:none">🗑 Excluir Lista</button>
+        <button id="almox-admin-link" class="btn" onclick="promptAdminPass(updateAlmoxAdminUI)" style="font-size:9px;padding:5px 10px;color:var(--mut)">🔑 Admin</button>
         <button class="mc" onclick="closeOv('ov-almox')">✕</button>
       </div>
       <input type="file" id="almox-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadAlmoxFile(event)">
     </div>
+
     <div class="almox-search-bar">
       <div style="position:relative;flex:1">
         <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:14px;pointer-events:none">🔍</span>
@@ -240,36 +244,47 @@
       </div>
       <div id="almox-count" style="font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap;padding:0 4px">—</div>
     </div>
-    <div id="almox-empty-state" class="almox-empty">
+
+    <div id="almox-loading" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:32px;color:var(--acc);font-family:var(--mono);font-size:11px">
+      <span class="puls" style="width:10px;height:10px"></span> Carregando lista...
+    </div>
+
+    <div id="almox-empty-state" class="almox-empty" style="display:none">
       <div style="font-size:40px;margin-bottom:12px">📦</div>
       <div style="font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:8px">Nenhuma planilha carregada</div>
-      <div style="font-size:11px;color:var(--mut);line-height:1.6;max-width:280px;text-align:center">Importe um arquivo <strong style="color:var(--lbl)">.xlsx</strong> ou <strong style="color:var(--lbl)">.csv</strong> com a lista de materiais do almoxarifado</div>
+      <div style="font-size:11px;color:var(--mut);line-height:1.6;max-width:280px;text-align:center">O administrador pode importar um arquivo <strong style="color:var(--lbl)">.xlsx</strong> ou <strong style="color:var(--lbl)">.csv</strong></div>
     </div>
+
     <div id="almox-table-wrap" style="display:none;flex:1;overflow-y:auto">
       <table class="almox-table" id="almox-table">
         <thead id="almox-thead"></thead>
         <tbody id="almox-tbody"></tbody>
       </table>
     </div>
+
   </div>
 </div>
 
-<!-- ALMOX DESCRIPTION POPOVER -->
+<!-- ALMOX DESCRIPTION MODAL -->
 <div class="ov ov-center" id="ov-almox-desc" style="z-index:500">
-  <div class="modal" style="max-width:380px">
+  <div class="modal" style="max-width:400px">
     <div class="modal-hd">
       <h2 id="almox-desc-title">Adicionar observação</h2>
       <button class="mc" onclick="closeOv('ov-almox-desc')">✕</button>
     </div>
     <div class="modal-body" style="gap:12px">
-      <div style="font-size:11px;color:var(--mut);font-family:var(--mono)" id="almox-desc-item-info">—</div>
+      <div style="font-size:11px;color:var(--lbl);font-family:var(--mono);background:var(--surf2);padding:7px 10px;border-radius:var(--r);border:1px solid var(--brd)" id="almox-desc-item-info">—</div>
       <div class="fg">
         <label>Onde é usado / Observação</label>
         <textarea id="almox-desc-input" rows="3" placeholder="Ex: Usado na bomba P-101, linha de processo 3..."></textarea>
       </div>
+      <div id="almox-desc-autor-info" style="font-size:10px;color:var(--mut);font-family:var(--mono)"></div>
+      <div style="background:rgba(74,144,226,.08);border:1px solid rgba(74,144,226,.2);border-radius:var(--r);padding:7px 10px;font-size:10px;color:var(--blue);font-family:var(--mono)">
+        💡 Sua observação ficará visível para todos os usuários do app
+      </div>
       <div style="display:flex;gap:8px">
         <button class="btn" onclick="closeOv('ov-almox-desc')" style="flex:1;justify-content:center">Cancelar</button>
-        <button class="btn btn-acc" onclick="saveAlmoxDesc()" style="flex:2;justify-content:center">✓ Salvar</button>
+        <button class="btn btn-acc" id="almox-desc-save-btn" onclick="saveAlmoxDesc()" style="flex:2;justify-content:center">✓ Salvar para todos</button>
       </div>
     </div>
   </div>
