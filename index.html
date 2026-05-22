@@ -20,6 +20,7 @@
     <button class="tb" onclick="showPg('abertos',this)">◉ Abertos <span class="tbadge tbadge-b" id="cnt-open">0</span></button>
     <button class="tb" onclick="showPg('hist',this)">↺ Histórico <span class="tbadge tbadge-o" id="cnt-hist">0</span></button>
   </div>
+  <button class="tb tb-almox" onclick="openAlmox()">📦 Almoxarifado</button>
 </nav>
 
 <!-- NOVO -->
@@ -211,6 +212,66 @@
   <div style="position:relative;max-width:95vw;max-height:90vh">
     <img id="lightbox-img" src="" alt="Foto" style="max-width:95vw;max-height:88vh;border-radius:6px;display:block">
     <button onclick="closeOv('ov-lightbox')" style="position:absolute;top:-16px;right:-16px;background:var(--surf);border:1px solid var(--brd2);border-radius:50%;width:32px;height:32px;color:var(--txt);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+  </div>
+</div>
+
+
+<!-- ALMOXARIFADO MODAL -->
+<div class="ov ov-center" id="ov-almox">
+  <div class="almox-modal">
+    <div class="almox-hd">
+      <div style="display:flex;align-items:center;gap:10px;flex:1">
+        <span style="font-size:20px">📦</span>
+        <div>
+          <h2 style="font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc)">Lista do Almoxarifado</h2>
+          <div id="almox-file-info" style="font-size:10px;color:var(--mut);font-family:var(--mono)">Nenhuma planilha carregada</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px">
+        <button class="btn btn-acc" onclick="document.getElementById('almox-file-input').click()" style="font-size:10px;padding:7px 12px">📂 Importar Excel</button>
+        <button class="mc" onclick="closeOv('ov-almox')">✕</button>
+      </div>
+      <input type="file" id="almox-file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="loadAlmoxFile(event)">
+    </div>
+    <div class="almox-search-bar">
+      <div style="position:relative;flex:1">
+        <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mut);font-size:14px;pointer-events:none">🔍</span>
+        <input type="text" id="almox-search" placeholder="Buscar material, código, descrição..." oninput="filterAlmox()" class="almox-search-input" onfocus="this.style.borderColor='var(--acc)'" onblur="this.style.borderColor='var(--brd)'">
+      </div>
+      <div id="almox-count" style="font-family:var(--mono);font-size:10px;color:var(--mut);white-space:nowrap;padding:0 4px">—</div>
+    </div>
+    <div id="almox-empty-state" class="almox-empty">
+      <div style="font-size:40px;margin-bottom:12px">📦</div>
+      <div style="font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:8px">Nenhuma planilha carregada</div>
+      <div style="font-size:11px;color:var(--mut);line-height:1.6;max-width:280px;text-align:center">Importe um arquivo <strong style="color:var(--lbl)">.xlsx</strong> ou <strong style="color:var(--lbl)">.csv</strong> com a lista de materiais do almoxarifado</div>
+    </div>
+    <div id="almox-table-wrap" style="display:none;flex:1;overflow-y:auto">
+      <table class="almox-table" id="almox-table">
+        <thead id="almox-thead"></thead>
+        <tbody id="almox-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ALMOX DESCRIPTION POPOVER -->
+<div class="ov ov-center" id="ov-almox-desc" style="z-index:500">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-hd">
+      <h2 id="almox-desc-title">Adicionar observação</h2>
+      <button class="mc" onclick="closeOv('ov-almox-desc')">✕</button>
+    </div>
+    <div class="modal-body" style="gap:12px">
+      <div style="font-size:11px;color:var(--mut);font-family:var(--mono)" id="almox-desc-item-info">—</div>
+      <div class="fg">
+        <label>Onde é usado / Observação</label>
+        <textarea id="almox-desc-input" rows="3" placeholder="Ex: Usado na bomba P-101, linha de processo 3..."></textarea>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeOv('ov-almox-desc')" style="flex:1;justify-content:center">Cancelar</button>
+        <button class="btn btn-acc" onclick="saveAlmoxDesc()" style="flex:2;justify-content:center">✓ Salvar</button>
+      </div>
+    </div>
   </div>
 </div>
 

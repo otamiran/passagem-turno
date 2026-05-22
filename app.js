@@ -807,3 +807,149 @@ updatePreview();
 setSt('load', 'Conectando ao Supabase...');
 loadInitialData().then(() => startRT());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+
+// ── ALMOXARIFADO ─────────────────────────────────────────
+let almoxData = [];       // [{rowIdx, cells: {col: val}, desc: ''}]
+let almoxHeaders = [];    // column names from sheet
+let almoxFiltered = [];   // currently visible rows
+let almoxDescTarget = null; // rowIdx being edited
+
+// Load SheetJS dynamically
+async function loadSheetJS() {
+  if (window.XLSX) return;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+    s.onload = res; s.onerror = rej; document.head.appendChild(s);
+  });
+}
+
+window.openAlmox = function () {
+  document.getElementById('ov-almox').classList.add('on');
+  renderAlmoxTable();
+};
+
+window.loadAlmoxFile = async function (e) {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    await loadSheetJS();
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        if (!rows.length) { showToast('Planilha vazia.', 1); return; }
+
+        // First row = headers
+        almoxHeaders = rows[0].map(h => String(h).trim()).filter(Boolean);
+        // Load saved descriptions from localStorage
+        let savedDescs = {};
+        try { savedDescs = JSON.parse(localStorage.getItem('almox-descs') || '{}'); } catch {}
+
+        almoxData = rows.slice(1).filter(r => r.some(c => c !== '')).map((row, idx) => {
+          const cells = {};
+          almoxHeaders.forEach((h, i) => { cells[h] = String(row[i] ?? '').trim(); });
+          return { rowIdx: idx, cells, desc: savedDescs[idx] || '' };
+        });
+
+        almoxFiltered = [...almoxData];
+        document.getElementById('almox-file-info').textContent =
+          `${file.name} — ${almoxData.length} itens`;
+        document.getElementById('almox-search').value = '';
+        renderAlmoxTable();
+        showToast(`✓ ${almoxData.length} itens carregados!`);
+      } catch (err) { showToast('Erro ao ler arquivo: ' + err.message, 1); }
+    };
+    reader.readAsArrayBuffer(file);
+  } catch { showToast('Erro ao carregar SheetJS.', 1); }
+  e.target.value = '';
+};
+
+window.filterAlmox = function () {
+  const q = (document.getElementById('almox-search')?.value || '').toLowerCase().trim();
+  if (!q) { almoxFiltered = [...almoxData]; }
+  else {
+    almoxFiltered = almoxData.filter(row =>
+      almoxHeaders.some(h => row.cells[h].toLowerCase().includes(q)) ||
+      (row.desc || '').toLowerCase().includes(q)
+    );
+  }
+  renderAlmoxTable();
+};
+
+function highlight(text, query) {
+  if (!query) return escHtml(text);
+  const esc = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return escHtml(text).replace(new RegExp(esc, 'gi'),
+    m => `<span class="almox-highlight">${m}</span>`);
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderAlmoxTable() {
+  const empty = document.getElementById('almox-empty-state');
+  const wrap  = document.getElementById('almox-table-wrap');
+  const countEl = document.getElementById('almox-count');
+
+  if (!almoxData.length) {
+    empty.style.display = 'flex'; wrap.style.display = 'none';
+    countEl.textContent = '—'; return;
+  }
+  empty.style.display = 'none'; wrap.style.display = 'block';
+  countEl.textContent = `${almoxFiltered.length} de ${almoxData.length} itens`;
+
+  const q = (document.getElementById('almox-search')?.value || '').toLowerCase().trim();
+
+  // Header
+  const thead = document.getElementById('almox-thead');
+  thead.innerHTML = '<tr>' +
+    almoxHeaders.map(h => `<th>${escHtml(h)}</th>`).join('') +
+    '<th style="min-width:160px">Onde é Usado / Obs.</th>' +
+    '</tr>';
+
+  // Body
+  const tbody = document.getElementById('almox-tbody');
+  if (!almoxFiltered.length) {
+    tbody.innerHTML = `<tr><td colspan="${almoxHeaders.length + 1}" style="text-align:center;padding:24px;color:var(--mut);font-family:var(--mono);font-size:11px">Nenhum item encontrado para "${escHtml(q)}"</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = almoxFiltered.map(row => {
+    const cells = almoxHeaders.map(h =>
+      `<td>${highlight(row.cells[h], q)}</td>`
+    ).join('');
+    const hasDesc = !!row.desc;
+    const descLabel = hasDesc
+      ? `<span class="almox-desc-btn has-desc" onclick="editAlmoxDesc(${row.rowIdx})" title="${escHtml(row.desc)}">✏ ${escHtml(row.desc.length > 28 ? row.desc.slice(0,28)+'…' : row.desc)}</span>`
+      : `<span class="almox-desc-btn" onclick="editAlmoxDesc(${row.rowIdx})">+ Adicionar</span>`;
+    return `<tr>${cells}<td class="td-desc">${descLabel}</td></tr>`;
+  }).join('');
+}
+
+window.editAlmoxDesc = function (rowIdx) {
+  const row = almoxData.find(r => r.rowIdx === rowIdx); if (!row) return;
+  almoxDescTarget = rowIdx;
+  // Show first two non-empty cell values as item info
+  const info = almoxHeaders.slice(0, 3).map(h => row.cells[h]).filter(Boolean).join(' · ');
+  document.getElementById('almox-desc-item-info').textContent = info || '—';
+  document.getElementById('almox-desc-input').value = row.desc || '';
+  document.getElementById('almox-desc-title').textContent = row.desc ? 'Editar observação' : 'Adicionar observação';
+  document.getElementById('ov-almox-desc').classList.add('on');
+};
+
+window.saveAlmoxDesc = function () {
+  if (almoxDescTarget === null) return;
+  const val = (document.getElementById('almox-desc-input').value || '').trim();
+  const row = almoxData.find(r => r.rowIdx === almoxDescTarget);
+  if (row) { row.desc = val; filterAlmox(); }
+  // Persist all descriptions
+  try {
+    const descs = {};
+    almoxData.forEach(r => { if (r.desc) descs[r.rowIdx] = r.desc; });
+    localStorage.setItem('almox-descs', JSON.stringify(descs));
+  } catch {}
+  closeOv('ov-almox-desc');
+  showToast(val ? '✓ Observação salva!' : 'Observação removida.');
+};

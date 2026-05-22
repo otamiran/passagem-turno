@@ -205,3 +205,32 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
   .photo-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr))}
   .modal-photo-grid{grid-template-columns:repeat(auto-fill,minmax(90px,1fr))}
 }
+
+/* ALMOXARIFADO NAV BUTTON */
+.tb-almox{margin-left:auto;border-left:1px solid var(--brd);color:var(--acc)!important;background:rgba(240,165,0,.06)!important;padding:0 16px!important}
+.tb-almox:hover{background:rgba(240,165,0,.12)!important;color:var(--acc)!important}
+
+/* ALMOXARIFADO MODAL */
+.almox-modal{background:var(--surf);border:1px solid var(--brd2);border-top:2px solid var(--acc);border-radius:var(--rl);width:min(96vw,900px);max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.almox-hd{padding:12px 16px;border-bottom:1px solid var(--brd);background:var(--surf2);display:flex;align-items:center;gap:10px;flex-wrap:wrap;gap:10px}
+.almox-search-bar{padding:10px 14px;border-bottom:1px solid var(--brd);background:var(--surf);display:flex;align-items:center;gap:10px}
+.almox-search-input{padding:8px 11px 8px 34px;width:100%;background:var(--surf2);border:1px solid var(--brd);border-radius:var(--r);color:var(--txt);font-family:var(--sans);font-size:13px;outline:none;transition:border-color .15s}
+.almox-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--mut)}
+
+/* ALMOX TABLE */
+.almox-table{width:100%;border-collapse:collapse;font-size:12px}
+.almox-table thead th{background:var(--surf2);border-bottom:2px solid var(--brd2);color:var(--mut);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:8px 12px;text-align:left;position:sticky;top:0;z-index:2;white-space:nowrap}
+.almox-table tbody tr{border-bottom:1px solid var(--brd);transition:background .1s}
+.almox-table tbody tr:hover{background:var(--surf2)}
+.almox-table tbody td{padding:7px 12px;color:var(--txt);vertical-align:middle;word-break:break-word;max-width:260px}
+.almox-table .td-desc{min-width:160px}
+.almox-desc-btn{background:none;border:1px dashed var(--brd2);border-radius:3px;color:var(--mut);cursor:pointer;font-family:var(--mono);font-size:9px;padding:3px 8px;transition:all .15s;white-space:nowrap}
+.almox-desc-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(240,165,0,.06)}
+.almox-desc-btn.has-desc{border-color:rgba(46,204,113,.4);color:var(--grn);background:rgba(46,204,113,.07)}
+.almox-highlight{background:rgba(240,165,0,.18);border-radius:2px;color:var(--acc)}
+
+@media(max-width:480px){
+  .tb-almox span{display:none}
+  .almox-modal{width:99vw;max-height:92vh;border-radius:12px 12px 0 0}
+  .almox-table tbody td{padding:6px 8px;font-size:11px}
+}
