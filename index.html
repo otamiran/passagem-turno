@@ -20,7 +20,7 @@
     <button class="tb" onclick="showPg('abertos',this)">◉ Abertos <span class="tbadge tbadge-b" id="cnt-open">0</span></button>
     <button class="tb" onclick="showPg('hist',this)">↺ Histórico <span class="tbadge tbadge-o" id="cnt-hist">0</span></button>
   </div>
-  <button class="tb tb-almox" onclick="openAlmox()">📦 Almoxarifado</button>
+  <button class="tb tb-almox" id="btn-almox">📦 Almoxarifado</button>
 </nav>
 
 <!-- NOVO -->
@@ -277,6 +277,19 @@
 
 <div class="toast" id="toast"></div>
 
+<script>
+// Wire almox button after module initializes window.openAlmox
+document.getElementById('btn-almox').addEventListener('click', function() {
+  if (typeof window.openAlmox === 'function') {
+    window.openAlmox();
+  } else {
+    // Module not ready yet, retry
+    setTimeout(function() {
+      if (typeof window.openAlmox === 'function') window.openAlmox();
+    }, 500);
+  }
+});
+</script>
 <script type="module" src="app.js"></script>
 </body>
 </html>
