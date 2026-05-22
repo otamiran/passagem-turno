@@ -808,13 +808,105 @@ setSt('load', 'Conectando ao Supabase...');
 loadInitialData().then(() => startRT());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
 
-// ── ALMOXARIFADO ─────────────────────────────────────────
-let almoxData = [];       // [{rowIdx, cells: {col: val}, desc: ''}]
-let almoxHeaders = [];    // column names from sheet
-let almoxFiltered = [];   // currently visible rows
-let almoxDescTarget = null; // rowIdx being edited
 
-// Load SheetJS dynamically
+// ── ALMOXARIFADO ─────────────────────────────────────────
+const ALMOX_TABLE   = 'almoxarifado_lista';
+const ALMOX_DESCS   = 'almoxarifado_descs';
+const ADMIN_PASS    = 'Alpa';
+const ADMIN_LS_KEY  = 'almox-admin-auth';
+
+let almoxData     = [];   // rows from Supabase: [{id, row_idx, cells, headers}]
+let almoxHeaders  = [];
+let almoxFiltered = [];
+let almoxDescTarget = null;
+let almoxDescs    = {};   // {row_idx: {id, descricao, autor}}
+let almoxIsAdmin  = false;
+let almoxLoaded   = false;
+
+// ── ADMIN AUTH ────────────────────────────────────────────
+function checkAdminSession() {
+  try { almoxIsAdmin = localStorage.getItem(ADMIN_LS_KEY) === '1'; } catch {}
+}
+function setAdminSession(v) {
+  almoxIsAdmin = v;
+  try { if (v) localStorage.setItem(ADMIN_LS_KEY, '1'); else localStorage.removeItem(ADMIN_LS_KEY); } catch {}
+}
+
+function promptAdminPass(onSuccess) {
+  if (almoxIsAdmin) { onSuccess(); return; }
+  const pass = window.prompt('Senha de administrador:');
+  if (pass === ADMIN_PASS) { setAdminSession(true); showToast('✓ Acesso admin liberado!'); onSuccess(); }
+  else if (pass !== null) showToast('Senha incorreta.', 1);
+}
+
+// ── OPEN MODAL ────────────────────────────────────────────
+window.openAlmox = async function () {
+  checkAdminSession();
+  updateAlmoxAdminUI();
+  document.getElementById('ov-almox').classList.add('on');
+  if (!almoxLoaded) await loadAlmoxFromDB();
+};
+
+function updateAlmoxAdminUI() {
+  const adminBar = document.getElementById('almox-admin-bar');
+  const importBtn = document.getElementById('almox-import-btn');
+  const clearBtn  = document.getElementById('almox-clear-btn');
+  const adminLink = document.getElementById('almox-admin-link');
+  if (!adminBar) return;
+  if (almoxIsAdmin) {
+    importBtn.style.display = '';
+    clearBtn.style.display  = '';
+    adminLink.style.display = 'none';
+    adminBar.title = 'Admin ativo';
+  } else {
+    importBtn.style.display = 'none';
+    clearBtn.style.display  = 'none';
+    adminLink.style.display = '';
+  }
+}
+
+// ── LOAD FROM SUPABASE ────────────────────────────────────
+async function loadAlmoxFromDB() {
+  document.getElementById('almox-loading').style.display = 'flex';
+  document.getElementById('almox-empty-state').style.display = 'none';
+  document.getElementById('almox-table-wrap').style.display  = 'none';
+  try {
+    // Load list rows
+    const { data: listData, error: e1 } = await sb.from(ALMOX_TABLE)
+      .select('*').order('row_idx', { ascending: true });
+    if (e1) throw e1;
+
+    // Load descriptions
+    const { data: descData, error: e2 } = await sb.from(ALMOX_DESCS).select('*');
+    if (e2) throw e2;
+
+    almoxDescs = {};
+    (descData || []).forEach(d => { almoxDescs[d.row_idx] = d; });
+
+    if (listData && listData.length) {
+      almoxHeaders = listData[0].headers || [];
+      almoxData    = listData;
+    } else {
+      almoxHeaders = [];
+      almoxData    = [];
+    }
+    almoxFiltered = [...almoxData];
+    almoxLoaded   = true;
+
+    const info = almoxData.length
+      ? `${almoxData.length} itens carregados`
+      : 'Nenhuma planilha carregada';
+    document.getElementById('almox-file-info').textContent = info;
+    document.getElementById('almox-search').value = '';
+  } catch (err) {
+    showToast('Erro ao carregar almoxarifado: ' + err.message, 1);
+  } finally {
+    document.getElementById('almox-loading').style.display = 'none';
+    renderAlmoxTable();
+  }
+}
+
+// ── IMPORT EXCEL ──────────────────────────────────────────
 async function loadSheetJS() {
   if (window.XLSX) return;
   await new Promise((res, rej) => {
@@ -824,9 +916,8 @@ async function loadSheetJS() {
   });
 }
 
-window.openAlmox = function () {
-  document.getElementById('ov-almox').classList.add('on');
-  renderAlmoxTable();
+window.almoxImportClick = function () {
+  promptAdminPass(() => document.getElementById('almox-file-input').click());
 };
 
 window.loadAlmoxFile = async function (e) {
@@ -834,50 +925,77 @@ window.loadAlmoxFile = async function (e) {
   try {
     await loadSheetJS();
     const reader = new FileReader();
-    reader.onload = ev => {
+    reader.onload = async ev => {
       try {
-        const wb = XLSX.read(ev.target.result, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
+        const wb   = XLSX.read(ev.target.result, { type: 'array' });
+        const ws   = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
         if (!rows.length) { showToast('Planilha vazia.', 1); return; }
 
-        // First row = headers
-        almoxHeaders = rows[0].map(h => String(h).trim()).filter(Boolean);
-        // Load saved descriptions from localStorage
-        let savedDescs = {};
-        try { savedDescs = JSON.parse(localStorage.getItem('almox-descs') || '{}'); } catch {}
+        const headers = rows[0].map(h => String(h).trim()).filter(Boolean);
+        const items   = rows.slice(1)
+          .filter(r => r.some(c => c !== ''))
+          .map((row, idx) => {
+            const cells = {};
+            headers.forEach((h, i) => { cells[h] = String(row[i] ?? '').trim(); });
+            return { row_idx: idx, cells, headers };
+          });
 
-        almoxData = rows.slice(1).filter(r => r.some(c => c !== '')).map((row, idx) => {
-          const cells = {};
-          almoxHeaders.forEach((h, i) => { cells[h] = String(row[i] ?? '').trim(); });
-          return { rowIdx: idx, cells, desc: savedDescs[idx] || '' };
-        });
+        if (!items.length) { showToast('Nenhum dado encontrado.', 1); return; }
 
-        almoxFiltered = [...almoxData];
-        document.getElementById('almox-file-info').textContent =
-          `${file.name} — ${almoxData.length} itens`;
-        document.getElementById('almox-search').value = '';
-        renderAlmoxTable();
-        showToast(`✓ ${almoxData.length} itens carregados!`);
-      } catch (err) { showToast('Erro ao ler arquivo: ' + err.message, 1); }
+        showToast('Enviando para o servidor...');
+        // Clear existing list
+        await sb.from(ALMOX_TABLE).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        // Clear existing descs
+        await sb.from(ALMOX_DESCS).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+        // Insert in batches of 100
+        for (let i = 0; i < items.length; i += 100) {
+          const batch = items.slice(i, i + 100);
+          const { error } = await sb.from(ALMOX_TABLE).insert(batch);
+          if (error) throw error;
+        }
+
+        almoxLoaded = false;
+        await loadAlmoxFromDB();
+        document.getElementById('almox-file-info').textContent = `${file.name} — ${items.length} itens`;
+        showToast(`✓ ${items.length} itens importados para todos!`);
+      } catch (err) { showToast('Erro: ' + err.message, 1); }
     };
     reader.readAsArrayBuffer(file);
   } catch { showToast('Erro ao carregar SheetJS.', 1); }
   e.target.value = '';
 };
 
+window.almoxClearList = function () {
+  promptAdminPass(() => {
+    if (!confirm('Excluir TODA a lista do almoxarifado e os comentários? Esta ação não pode ser desfeita.')) return;
+    (async () => {
+      await sb.from(ALMOX_TABLE).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      await sb.from(ALMOX_DESCS).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      almoxData = []; almoxHeaders = []; almoxFiltered = []; almoxDescs = {};
+      almoxLoaded = false;
+      document.getElementById('almox-file-info').textContent = 'Nenhuma planilha carregada';
+      renderAlmoxTable();
+      showToast('Lista excluída.');
+    })();
+  });
+};
+
+// ── SEARCH ────────────────────────────────────────────────
 window.filterAlmox = function () {
   const q = (document.getElementById('almox-search')?.value || '').toLowerCase().trim();
   if (!q) { almoxFiltered = [...almoxData]; }
   else {
     almoxFiltered = almoxData.filter(row =>
-      almoxHeaders.some(h => row.cells[h].toLowerCase().includes(q)) ||
-      (row.desc || '').toLowerCase().includes(q)
+      almoxHeaders.some(h => (row.cells[h] || '').toLowerCase().includes(q)) ||
+      ((almoxDescs[row.row_idx]?.descricao) || '').toLowerCase().includes(q)
     );
   }
   renderAlmoxTable();
 };
 
+// ── RENDER TABLE ──────────────────────────────────────────
 function highlight(text, query) {
   if (!query) return escHtml(text);
   const esc = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -889,9 +1007,9 @@ function escHtml(s) {
 }
 
 function renderAlmoxTable() {
-  const empty = document.getElementById('almox-empty-state');
-  const wrap  = document.getElementById('almox-table-wrap');
-  const countEl = document.getElementById('almox-count');
+  const empty    = document.getElementById('almox-empty-state');
+  const wrap     = document.getElementById('almox-table-wrap');
+  const countEl  = document.getElementById('almox-count');
 
   if (!almoxData.length) {
     empty.style.display = 'flex'; wrap.style.display = 'none';
@@ -902,14 +1020,11 @@ function renderAlmoxTable() {
 
   const q = (document.getElementById('almox-search')?.value || '').toLowerCase().trim();
 
-  // Header
-  const thead = document.getElementById('almox-thead');
-  thead.innerHTML = '<tr>' +
+  document.getElementById('almox-thead').innerHTML = '<tr>' +
     almoxHeaders.map(h => `<th>${escHtml(h)}</th>`).join('') +
-    '<th style="min-width:160px">Onde é Usado / Obs.</th>' +
+    '<th style="min-width:180px">Onde é Usado / Obs.</th>' +
     '</tr>';
 
-  // Body
   const tbody = document.getElementById('almox-tbody');
   if (!almoxFiltered.length) {
     tbody.innerHTML = `<tr><td colspan="${almoxHeaders.length + 1}" style="text-align:center;padding:24px;color:var(--mut);font-family:var(--mono);font-size:11px">Nenhum item encontrado para "${escHtml(q)}"</td></tr>`;
@@ -917,39 +1032,62 @@ function renderAlmoxTable() {
   }
 
   tbody.innerHTML = almoxFiltered.map(row => {
-    const cells = almoxHeaders.map(h =>
-      `<td>${highlight(row.cells[h], q)}</td>`
-    ).join('');
-    const hasDesc = !!row.desc;
+    const cells   = almoxHeaders.map(h => `<td>${highlight(row.cells[h] || '', q)}</td>`).join('');
+    const descObj = almoxDescs[row.row_idx];
+    const hasDesc = !!(descObj?.descricao);
     const descLabel = hasDesc
-      ? `<span class="almox-desc-btn has-desc" onclick="editAlmoxDesc(${row.rowIdx})" title="${escHtml(row.desc)}">✏ ${escHtml(row.desc.length > 28 ? row.desc.slice(0,28)+'…' : row.desc)}</span>`
-      : `<span class="almox-desc-btn" onclick="editAlmoxDesc(${row.rowIdx})">+ Adicionar</span>`;
+      ? `<span class="almox-desc-btn has-desc" onclick="editAlmoxDesc(${row.row_idx})" title="${escHtml(descObj.descricao)}">✏ ${escHtml(descObj.descricao.length > 30 ? descObj.descricao.slice(0,30)+'…' : descObj.descricao)}<em class="almox-desc-autor"> — ${escHtml(descObj.autor || '?')}</em></span>`
+      : `<span class="almox-desc-btn" onclick="editAlmoxDesc(${row.row_idx})">+ Adicionar obs.</span>`;
     return `<tr>${cells}<td class="td-desc">${descLabel}</td></tr>`;
   }).join('');
 }
 
+// ── DESCRIPTION EDIT ─────────────────────────────────────
 window.editAlmoxDesc = function (rowIdx) {
-  const row = almoxData.find(r => r.rowIdx === rowIdx); if (!row) return;
+  const row = almoxData.find(r => r.row_idx === rowIdx); if (!row) return;
   almoxDescTarget = rowIdx;
-  // Show first two non-empty cell values as item info
   const info = almoxHeaders.slice(0, 3).map(h => row.cells[h]).filter(Boolean).join(' · ');
   document.getElementById('almox-desc-item-info').textContent = info || '—';
-  document.getElementById('almox-desc-input').value = row.desc || '';
-  document.getElementById('almox-desc-title').textContent = row.desc ? 'Editar observação' : 'Adicionar observação';
+  const existing = almoxDescs[rowIdx];
+  document.getElementById('almox-desc-input').value  = existing?.descricao || '';
+  document.getElementById('almox-desc-autor-info').textContent = existing
+    ? `Última edição: ${existing.autor || '?'}` : '';
+  document.getElementById('almox-desc-title').textContent = existing?.descricao ? 'Editar observação' : 'Adicionar observação';
   document.getElementById('ov-almox-desc').classList.add('on');
 };
 
-window.saveAlmoxDesc = function () {
+window.saveAlmoxDesc = async function () {
   if (almoxDescTarget === null) return;
-  const val = (document.getElementById('almox-desc-input').value || '').trim();
-  const row = almoxData.find(r => r.rowIdx === almoxDescTarget);
-  if (row) { row.desc = val; filterAlmox(); }
-  // Persist all descriptions
+  if (!nome) { showToast('Informe seu nome no app primeiro.', 1); return; }
+  const val  = (document.getElementById('almox-desc-input').value || '').trim();
+  const btn  = document.getElementById('almox-desc-save-btn');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
   try {
-    const descs = {};
-    almoxData.forEach(r => { if (r.desc) descs[r.rowIdx] = r.desc; });
-    localStorage.setItem('almox-descs', JSON.stringify(descs));
-  } catch {}
-  closeOv('ov-almox-desc');
-  showToast(val ? '✓ Observação salva!' : 'Observação removida.');
+    const existing = almoxDescs[almoxDescTarget];
+    if (val) {
+      const payload = { row_idx: almoxDescTarget, descricao: val, autor: nome, atualizado_em: Date.now() };
+      if (existing?.id) {
+        await sb.from(ALMOX_DESCS).update(payload).eq('id', existing.id);
+        almoxDescs[almoxDescTarget] = { ...existing, ...payload };
+      } else {
+        const { data } = await sb.from(ALMOX_DESCS).insert(payload).select().single();
+        if (data) almoxDescs[almoxDescTarget] = data;
+      }
+    } else if (existing?.id) {
+      await sb.from(ALMOX_DESCS).delete().eq('id', existing.id);
+      delete almoxDescs[almoxDescTarget];
+    }
+    filterAlmox();
+    closeOv('ov-almox-desc');
+    showToast(val ? '✓ Observação salva para todos!' : 'Observação removida.');
+  } catch (err) {
+    showToast('Erro: ' + err.message, 1);
+  } finally {
+    btn.textContent = '✓ Salvar para todos';
+    btn.disabled = false;
+  }
 };
+
+// expose for inline onclick
+window.promptAdminPass   = promptAdminPass;
+window.updateAlmoxAdminUI = updateAlmoxAdminUI;
