@@ -234,3 +234,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
   .almox-modal{width:99vw;max-height:92vh;border-radius:12px 12px 0 0}
   .almox-table tbody td{padding:6px 8px;font-size:11px}
 }
+
+/* ALMOX DESC AUTOR */
+.almox-desc-autor{font-size:9px;color:var(--mut);font-style:normal;margin-left:4px}
