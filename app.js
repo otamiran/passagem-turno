@@ -871,14 +871,34 @@ async function loadAlmoxFromDB() {
   document.getElementById('almox-empty-state').style.display = 'none';
   document.getElementById('almox-table-wrap').style.display  = 'none';
   try {
-    // Load list rows
-    const { data: listData, error: e1 } = await sb.from(ALMOX_TABLE)
-      .select('*').order('row_idx', { ascending: true });
-    if (e1) throw e1;
+    // Load list rows with pagination (Supabase default limit is 1000)
+    let listData = [];
+    const PAGE = 1000;
+    let from = 0;
+    while (true) {
+      const { data: page, error: e1 } = await sb.from(ALMOX_TABLE)
+        .select('*').order('row_idx', { ascending: true }).range(from, from + PAGE - 1);
+      if (e1) throw e1;
+      if (!page || page.length === 0) break;
+      listData = listData.concat(page);
+      if (page.length < PAGE) break;
+      from += PAGE;
+      document.getElementById('almox-file-info').textContent =
+        `Carregando... ${listData.length} itens`;
+    }
 
-    // Load descriptions
-    const { data: descData, error: e2 } = await sb.from(ALMOX_DESCS).select('*');
-    if (e2) throw e2;
+    // Load descriptions with pagination
+    let descData = [];
+    from = 0;
+    while (true) {
+      const { data: page, error: e2 } = await sb.from(ALMOX_DESCS)
+        .select('*').range(from, from + PAGE - 1);
+      if (e2) throw e2;
+      if (!page || page.length === 0) break;
+      descData = descData.concat(page);
+      if (page.length < PAGE) break;
+      from += PAGE;
+    }
 
     almoxDescs = {};
     (descData || []).forEach(d => { almoxDescs[d.row_idx] = d; });
