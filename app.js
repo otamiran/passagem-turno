@@ -1325,16 +1325,18 @@ async function chamarIAFca(prompt, btnEl, resultEl, textEl) {
   try {
     const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
+      },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
+    if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
     const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
-    // parse JSON
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     fcaIaSugestao = parsed;
@@ -1382,14 +1384,17 @@ window.refinarFcaViewIA = async function () {
   try {
     const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
+      },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
+    if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
     const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
