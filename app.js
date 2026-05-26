@@ -478,6 +478,7 @@ async function loadInitialData() {
   if (e2) return;
   histCache = histData || [];
   document.getElementById('cnt-hist').textContent = histCache.length;
+  await loadFcas();
   setSt('ok', `Conectado — ${openCache.length} aberto(s), ${histCache.length} no histórico`);
 }
 
@@ -508,6 +509,7 @@ function startRT() {
     .subscribe();
 
   realtimeSubs = [sub1, sub2];
+  startFcaRT();
 }
 
 // ── RENDER OPEN ──────────────────────────────────────────
@@ -838,6 +840,7 @@ window.showPg = function (id, btn) {
   if (btn) btn.classList.add('on');
   if (id === 'abertos') renderOpen();
   if (id === 'hist') renderHistory();
+  if (id === 'fca') renderFcaList();
 };
 
 // WhatsApp
@@ -1184,3 +1187,163 @@ window.saveAlmoxDesc = async function () {
 // expose for inline onclick
 window.promptAdminPass   = promptAdminPass;
 window.updateAlmoxAdminUI = updateAlmoxAdminUI;
+
+// ── FCA ──────────────────────────────────────────────────
+const FCA_TABLE = 'fcas';
+let fcaCache = [];
+let fcaViewId = null;
+
+// ── OPEN / CLOSE SHEET ───────────────────────────────────
+window.openFcaSheet = function () {
+  document.getElementById('fca-equip').value = '';
+  document.getElementById('fca-data').value  = new Date().toISOString().split('T')[0];
+  document.getElementById('fca-fato').value  = '';
+  document.getElementById('fca-causa').value = '';
+  document.getElementById('fca-acao').value  = '';
+  document.getElementById('ov-fca').classList.add('on');
+};
+
+window.closeFcaSheet = function () {
+  document.getElementById('ov-fca').classList.remove('on');
+};
+
+// ── SAVE ─────────────────────────────────────────────────
+window.saveFca = async function () {
+  if (!nome) { showToast('Informe seu nome primeiro.', 1); return; }
+  const fato  = document.getElementById('fca-fato').value.trim();
+  const causa = document.getElementById('fca-causa').value.trim();
+  const acao  = document.getElementById('fca-acao').value.trim();
+  if (!fato && !causa && !acao) { showToast('Preencha ao menos um campo.', 1); return; }
+
+  const payload = {
+    equip:      document.getElementById('fca-equip').value.trim(),
+    data:       document.getElementById('fca-data').value,
+    fato, causa, acao,
+    autor:      nome,
+    criado_em:  Date.now()
+  };
+  try {
+    const { error } = await sb.from(FCA_TABLE).insert(payload);
+    if (error) throw error;
+    closeFcaSheet();
+    showToast('✓ FCA salvo!');
+  } catch (e) { showToast('Erro: ' + e.message, 1); }
+};
+
+// ── LOAD ─────────────────────────────────────────────────
+async function loadFcas() {
+  const { data, error } = await sb.from(FCA_TABLE).select('*').order('criado_em', { ascending: false });
+  if (error) return;
+  fcaCache = data || [];
+  document.getElementById('cnt-fca').textContent = fcaCache.length || '';
+  if (document.getElementById('pg-fca').classList.contains('on')) renderFcaList();
+}
+
+// ── RENDER LIST ──────────────────────────────────────────
+function renderFcaList() {
+  const el = document.getElementById('fca-list');
+  if (!fcaCache.length) {
+    el.innerHTML = `<div class="empty"><div class="ico">⚡</div><p>Nenhum FCA registrado ainda.</p></div>`;
+    return;
+  }
+  el.innerHTML = fcaCache.map(r => {
+    const df = r.data ? new Date(r.data + 'T12:00').toLocaleDateString('pt-BR') : '—';
+    const preview = [r.fato, r.causa, r.acao].filter(Boolean).join(' · ').slice(0, 120);
+    return `<div class="fca-card">
+      <div class="fca-card-hd" onclick="viewFca('${r.id}')">
+        <div style="flex:1">
+          <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--lbl)">${r.equip || 'Sem equipamento'} <span style="color:#b07fe0">⚡ FCA</span></div>
+          <div class="fca-card-meta">${df} · ${r.autor || '—'}</div>
+          <div class="fca-preview">${preview || '—'}</div>
+        </div>
+      </div>
+      <div class="fca-card-foot">
+        <button class="btn btn-grn" onclick="viewFca('${r.id}')">👁 Ver</button>
+        <button class="fca-gpt-btn" style="flex:1;padding:7px" onclick="openFcaGptById('${r.id}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855l-5.843-3.371 2.019-1.168a.075.075 0 0 1 .071 0l4.83 2.786a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.4-.674zm2.01-3.023l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365l2.602-1.5 2.603 1.5v2.999l-2.597 1.5-2.603-1.5z"/></svg>
+          ChatGPT
+        </button>
+        <button class="btn btn-red" onclick="deleteFca('${r.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── VIEW MODAL ───────────────────────────────────────────
+window.viewFca = function (id) {
+  const r = fcaCache.find(x => x.id === id); if (!r) return;
+  fcaViewId = id;
+  const df = r.data ? new Date(r.data + 'T12:00').toLocaleDateString('pt-BR') : '—';
+  document.getElementById('fca-view-title').textContent = `${r.equip || 'FCA'} — ${df}`;
+  document.getElementById('fv-fato').textContent  = r.fato  || '—';
+  document.getElementById('fv-causa').textContent = r.causa || '—';
+  document.getElementById('fv-acao').textContent  = r.acao  || '—';
+  document.getElementById('ov-fca-view').classList.add('on');
+};
+
+window.copyFcaView = function () {
+  const r = fcaCache.find(x => x.id === fcaViewId); if (!r) return;
+  const df = r.data ? new Date(r.data + 'T12:00').toLocaleDateString('pt-BR') : '—';
+  const txt = `⚡ FCA — ${r.equip || '—'} | ${df}\nAutor: ${r.autor || '—'}\n\n📌 FATO\n${r.fato || '—'}\n\n🔍 CAUSA\n${r.causa || '—'}\n\n✅ AÇÃO\n${r.acao || '—'}`;
+  navigator.clipboard.writeText(txt).then(() => showToast('✓ FCA copiado!')).catch(() => showToast('Erro ao copiar', 1));
+};
+
+window.deleteFcaView = function () {
+  if (!fcaViewId) return;
+  closeOv('ov-fca-view');
+  deleteFca(fcaViewId);
+};
+
+window.deleteFca = function (id) {
+  askConf('Excluir este FCA permanentemente?', async () => {
+    const { error } = await sb.from(FCA_TABLE).delete().eq('id', id);
+    if (error) showToast('Erro: ' + error.message, 1);
+    else showToast('FCA excluído.');
+  });
+};
+
+// ── CHATGPT LINK ─────────────────────────────────────────
+function buildGptPrompt(fato, causa, acao, equip) {
+  const parts = [];
+  if (equip) parts.push(`Equipamento/Setor: ${equip}`);
+  if (fato)  parts.push(`Fato: ${fato}`);
+  if (causa) parts.push(`Causa: ${causa}`);
+  if (acao)  parts.push(`Ação: ${acao}`);
+  const contexto = parts.join('\n');
+  const prompt = `Você é um engenheiro de manutenção industrial sênior. Elabore, organize e formate o seguinte registro de FCA (Fato, Causa, Ação) em linguagem técnica formal, clara e objetiva, mantendo a estrutura FCA. Corrija erros gramaticais, use terminologia técnica adequada e torne o texto profissional.\n\n${contexto}\n\nResponda com o FCA formatado em três seções bem definidas: FATO, CAUSA e AÇÃO.`;
+  return encodeURIComponent(prompt);
+}
+
+window.openFcaGpt = function () {
+  const fato  = document.getElementById('fca-fato').value.trim();
+  const causa = document.getElementById('fca-causa').value.trim();
+  const acao  = document.getElementById('fca-acao').value.trim();
+  const equip = document.getElementById('fca-equip').value.trim();
+  const url = `https://chat.openai.com/?q=${buildGptPrompt(fato, causa, acao, equip)}`;
+  window.open(url, '_blank');
+};
+
+window.openFcaGptFromView = function () {
+  openFcaGptById(fcaViewId);
+};
+
+window.openFcaGptById = function (id) {
+  const r = fcaCache.find(x => x.id === id); if (!r) return;
+  const url = `https://chat.openai.com/?q=${buildGptPrompt(r.fato, r.causa, r.acao, r.equip)}`;
+  window.open(url, '_blank');
+};
+
+// ── REALTIME ─────────────────────────────────────────────
+function startFcaRT() {
+  sb.channel('rt-fca')
+    .on('postgres_changes', { event: '*', schema: 'public', table: FCA_TABLE }, async () => {
+      await loadFcas();
+    })
+    .subscribe();
+}
+
+// wire FCA button (module-safe)
+window.addEventListener('load', () => {
+  const btn = document.getElementById('btn-open-fca');
+  if (btn) btn.addEventListener('click', () => window.openFcaSheet());
+});
