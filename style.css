@@ -14,8 +14,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .nav{background:var(--surf);border-bottom:2px solid var(--acc);display:flex;align-items:stretch;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 .nav-brand{padding:12px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid var(--brd)}
 .hex{width:26px;height:26px;background:var(--acc);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
-.nav-logo{width:32px;height:32px;object-fit:contain;flex-shrink:0;border-radius:6px}
-.nav-title{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;color:var(--acc);text-transform:uppercase}
+.nav-title{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:2px;color:var(--acc);text-transform:uppercase}
 .nav-tabs{display:flex;flex:1;overflow-x:auto}
 .tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:0 14px;text-transform:uppercase;transition:all .15s;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .tb:hover{color:var(--txt)}.tb.on{border-bottom-color:var(--acc);color:var(--acc)}
@@ -60,6 +59,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .btn-red{background:rgba(224,80,80,.1);border-color:var(--red);color:var(--red)}.btn-red:hover{background:rgba(224,80,80,.2)}
 .btn-wa{background:#075e54;border-color:#128c7e;color:#fff}.btn-wa:hover{background:#128c7e}
 .btn-pdf{background:rgba(240,165,0,.12);border-color:var(--acc);color:var(--acc)}.btn-pdf:hover{background:rgba(240,165,0,.22)}
+.btn-fca{background:rgba(176,127,224,.12);border-color:#b07fe0;color:#b07fe0}.btn-fca:hover{background:rgba(176,127,224,.22)}
 .btn-full{width:100%;justify-content:center;padding:10px;font-size:11px}
 
 /* ADD BUTTONS */
@@ -156,7 +156,7 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .sheet{background:var(--surf);border-radius:16px 16px 0 0;width:100%;max-width:700px;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.5)}
 .sheet-hd{padding:14px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .sheet-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;flex:1}
-.st-occ{color:var(--acc2)}.st-ativ{color:var(--blue)}.st-fca{color:#b07fe0}
+.st-occ{color:var(--acc2)}.st-ativ{color:var(--blue)}
 .sheet-close{background:none;border:none;color:var(--mut);cursor:pointer;font-size:22px;line-height:1;padding:0 4px}
 .sheet-close:hover{color:var(--txt)}
 .sheet-scroll{overflow-y:auto;flex:1;padding:16px;display:flex;flex-direction:column;gap:14px}
@@ -284,43 +284,3 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .fca-ai-result-body{background:var(--surf2);border:1px solid rgba(138,90,240,.2);border-radius:var(--r);padding:12px 14px;font-size:12px;line-height:1.7;color:var(--txt);white-space:pre-wrap;max-height:260px;overflow-y:auto}
 
 @media(max-width:480px){.add-row-3{grid-template-columns:1fr 1fr}}
-
-/* ── FCA SHEET FIXES ───────────────────────────────────── */
-/* Reset textarea inside fca-section (not inside .fg) */
-.fca-section textarea{
-  width:100% !important;
-  min-height:80px;
-  background:var(--surf) !important;
-  border:1px solid var(--brd) !important;
-  border-radius:var(--r) !important;
-  color:var(--txt) !important;
-  font-family:var(--sans) !important;
-  font-size:13px !important;
-  padding:9px 11px !important;
-  outline:none !important;
-  resize:vertical !important;
-  line-height:1.6 !important;
-  transition:border-color .15s !important;
-  box-sizing:border-box !important;
-  display:block !important;
-  margin-top:0 !important;
-}
-.fca-fato textarea:focus{border-color:var(--acc) !important}
-.fca-causa textarea:focus{border-color:var(--red) !important}
-.fca-acao textarea:focus{border-color:var(--grn) !important}
-
-/* FCA section spacing */
-.fca-section{
-  border-radius:var(--r);
-  padding:12px 14px;
-  margin-bottom:8px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-/* FCA sheet scroll gap */
-#ov-fca .sheet-scroll{gap:10px}
-
-/* FCA sheet title */
-#ov-fca .sheet-title{color:#b07fe0}
