@@ -73,7 +73,7 @@
   <div class="add-row add-row-3">
     <div class="add-btn add-btn-o" onclick="openSheet('occ')"><span style="font-size:20px">🔧</span>+ Ocorrência</div>
     <div class="add-btn add-btn-a" onclick="openSheet('ativ')"><span style="font-size:20px">📅</span>+ Atividade</div>
-    <div class="add-btn add-btn-f" id="btn-open-fca"><span style="font-size:20px">⚡</span>+ FCA</div>
+    <div class="add-btn add-btn-f" onclick="triggerFca()"><span style="font-size:20px">⚡</span>+ FCA</div>
   </div>
 
 
@@ -385,15 +385,15 @@ document.getElementById('btn-open-report').addEventListener('click', function() 
     }, 500);
   }
 });
-document.getElementById('btn-open-fca').addEventListener('click', function() {
+window.triggerFca = function() {
   if (typeof window.openFcaSheet === 'function') {
     window.openFcaSheet();
   } else {
     setTimeout(function() {
       if (typeof window.openFcaSheet === 'function') window.openFcaSheet();
-    }, 500);
+    }, 800);
   }
-});
+};
 </script>
 <script type="module" src="app.js"></script>
 </body>
