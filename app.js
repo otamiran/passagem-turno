@@ -390,6 +390,30 @@ window.closeToHist = async function () {
   });
 };
 
+// ── ABRIR RELATÓRIO SEM OCORRÊNCIA ───────────────────────
+window.openReportOnly = async function () {
+  if (!nome) { showToast('Informe seu nome.', 1); return; }
+  const setor = getSetor();
+  if (!setor) { showToast('Informe o setor.', 1); return; }
+  if (!document.getElementById('f-data').value) { showToast('Informe a data.', 1); return; }
+  if (!getHdrT()) { showToast('Selecione o turno.', 1); return; }
+  // If already editing an open report, just show confirmation
+  if (activeOpenId) { showToast('Relatório já está aberto. Use "Fechar no Histórico" para finalizar.'); return; }
+  askConf(`Abrir relatório de "${setor}" sem ocorrências?`, async () => {
+    try {
+      setSt('load', 'Salvando...');
+      await sb.from(CO).insert({
+        setor, data: document.getElementById('f-data').value,
+        turno: getHdrT(), itens: [],
+        criado_em: Date.now(), criado_por: nome, nome_turno: nome
+      });
+      setSt('ok', 'Conectado');
+      showToast('✓ Relatório aberto!');
+      clearForm(true);
+    } catch (e) { setSt('err', 'Erro: ' + e.message); showToast('Erro.', 1); }
+  });
+};
+
 // ── PREVIEW ──────────────────────────────────────────────
 function getPreviewData() {
   const selId = document.getElementById('f-sel').value;
@@ -645,8 +669,22 @@ async function loadJsPDF() {
   });
 }
 async function imgToBase64(url) {
-  const resp = await fetch(url); const blob = await resp.blob();
-  return new Promise((res, rej) => { const reader = new FileReader(); reader.onload = () => res(reader.result); reader.onerror = rej; reader.readAsDataURL(blob); });
+  // Fetch via canvas to avoid tainted-canvas / CORS issues and get natural dimensions
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      try {
+        res({ b64: canvas.toDataURL('image/jpeg', 0.85), w: img.naturalWidth, h: img.naturalHeight });
+      } catch { rej(new Error('canvas tainted')); }
+    };
+    img.onerror = () => rej(new Error('load failed'));
+    img.src = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+  });
 }
 window.gerarPDF = async function (r) {
   showToast('Gerando PDF, aguarde...');
@@ -680,32 +718,56 @@ window.gerarPDF = async function (r) {
     pdf.text(`${label} ${num}${autor ? ' — ' + autor : ''}`, M + 5, y + 6); y += 12;
   }
   function drawRow(lbl, val) {
-    const lines = pdf.splitTextToSize(String(val || '—'), CW - 42); check(lines.length * 5 + 3);
-    pdf.setFontSize(8.5); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(138, 149, 170); pdf.text(lbl + ':', M + 2, y);
-    pdf.setFont('helvetica', 'normal'); pdf.setTextColor(212, 219, 232); pdf.text(lines, M + 42, y);
-    y += lines.length * 5 + 2;
+    const LBL_W = 38, lineH = 4.8;
+    const lines = pdf.splitTextToSize(String(val || '—'), CW - LBL_W - 4);
+    const rowH  = lines.length * lineH + 3;
+    check(rowH);
+    pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(110, 120, 148);
+    pdf.text(lbl + ':', M + 2, y + lineH - 0.5);
+    pdf.setFontSize(8.5); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(212, 219, 232);
+    pdf.text(lines, M + LBL_W, y + lineH - 0.5);
+    y += rowH;
   }
   async function drawPhotos(fotos) {
     if (!fotos?.length) return;
-    check(8); pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(92, 102, 128);
-    pdf.text(`📷  ${fotos.length} foto(s)`, M + 2, y); y += 5;
-    const cols = 2, imgW = (CW - 5) / cols, imgH = imgW * 0.6; let col = 0;
+    check(8);
+    pdf.setFontSize(8); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(92, 102, 128);
+    pdf.text(`Fotos (${fotos.length})`, M + 2, y); y += 5;
+    const cols = 2, gap = 4;
+    const imgW = (CW - gap * (cols - 1)) / cols;
+    let col = 0;
     for (let p = 0; p < fotos.length; p++) {
-      if (col === 0) check(imgH + 6);
-      const x = M + col * (imgW + 5);
       try {
-        const b64 = await imgToBase64(fotos[p].url);
-        pdf.addImage(b64, 'JPEG', x, y, imgW, imgH, undefined, 'MEDIUM');
-        pdf.setDrawColor(58, 69, 96); pdf.roundedRect(x, y, imgW, imgH, 1, 1, 'S');
-        pdf.setFontSize(7); pdf.setTextColor(92, 102, 128); pdf.text(`Foto ${p + 1}`, x + 1, y + imgH - 1);
+        const { b64, w, h } = await imgToBase64(fotos[p].url);
+        // preserve aspect ratio, max height = 60mm
+        const ratio  = h / w;
+        const drawW  = imgW;
+        const drawH  = Math.min(drawW * ratio, 60);
+        if (col === 0) check(drawH + 8);
+        const x = M + col * (imgW + gap);
+        pdf.addImage(b64, 'JPEG', x, y, drawW, drawH, `img_${p}`, 'MEDIUM');
+        pdf.setDrawColor(58, 69, 96); pdf.roundedRect(x, y, drawW, drawH, 1, 1, 'S');
+        pdf.setFontSize(6.5); pdf.setTextColor(92, 102, 128);
+        pdf.text(`Foto ${p + 1}`, x + 1.5, y + drawH - 1.5);
+        col++;
+        if (col >= cols) { col = 0; y += drawH + gap; }
       } catch {
-        pdf.setFillColor(30, 35, 48); pdf.roundedRect(x, y, imgW, imgH, 1, 1, 'F');
-        pdf.setDrawColor(58, 69, 96); pdf.roundedRect(x, y, imgW, imgH, 1, 1, 'S');
-        pdf.setFontSize(8); pdf.setTextColor(92, 102, 128); pdf.text('Foto indisponível', x + imgW / 2, y + imgH / 2, { align: 'center' });
+        const drawH = imgW * 0.6;
+        if (col === 0) check(drawH + 8);
+        const x = M + col * (imgW + gap);
+        pdf.setFillColor(30, 35, 48); pdf.roundedRect(x, y, imgW, drawH, 1, 1, 'F');
+        pdf.setDrawColor(58, 69, 96); pdf.roundedRect(x, y, imgW, drawH, 1, 1, 'S');
+        pdf.setFontSize(7.5); pdf.setTextColor(92, 102, 128);
+        pdf.text('Foto indisponível', x + imgW / 2, y + drawH / 2, { align: 'center' });
+        col++;
+        if (col >= cols) { col = 0; y += drawH + gap; }
       }
-      col++; if (col >= cols) { col = 0; y += imgH + 4; }
     }
-    if (col > 0) y += imgH + 4;
+    if (col > 0) {
+      // close last partial row - need to know last drawH; add safe spacing
+      y += imgW * 0.6 + gap;
+    }
+    y += 2;
   }
   bgFill(); addHeaderBar();
   check(22); pdf.setFillColor(30, 35, 48); pdf.roundedRect(M, y, CW, 20, 2, 2, 'F');
