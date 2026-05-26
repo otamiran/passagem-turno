@@ -1414,15 +1414,21 @@ window.refinarFcaViewIA = async function () {
   try {
     const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
+      },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
-    const data = await resp.json();
+    const rawText = await resp.text();
+    if (!rawText || rawText.trim() === '') throw new Error('Resposta vazia da IA.');
+    let data;
+    try { data = JSON.parse(rawText); } catch(e) { throw new Error('Resposta inválida: ' + rawText.substring(0, 120)); }
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
+    if (!raw) throw new Error('IA retornou texto vazio.');
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     // Update the view fields
