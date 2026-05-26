@@ -404,7 +404,7 @@ window.openReportOnly = async function () {
       const { data, error } = await sb.from(CO).insert({
         setor, data: document.getElementById('f-data').value,
         turno: getHdrT(), itens: [],
-        criado_em: Date.now(), criado_por: nome, nome_turno: nome
+        criado_em: Date.now(), criado_por: nome
       }).select().single();
       if (error) throw error;
       activeOpenId = data.id;
