@@ -1323,18 +1323,17 @@ async function chamarIAFca(prompt, btnEl, resultEl, textEl) {
   resultEl.style.display = 'none';
   fcaIaSugestao = null;
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://turno-proxy.otamiranex.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        model: 'gemini-2.0-flash',
         messages: [{ role: 'user', content: prompt }]
       })
     });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
-    // parse JSON
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     fcaIaSugestao = parsed;
@@ -1380,15 +1379,15 @@ window.refinarFcaViewIA = async function () {
   if (!btn) return;
   btn.disabled = true; btn.textContent = '✦ Refinando...';
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('https://turno-proxy.otamiranex.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        model: 'gemini-2.0-flash',
         messages: [{ role: 'user', content: prompt }]
       })
     });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
     const data = await resp.json();
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
     const clean = raw.replace(/```json|```/g, '').trim();
