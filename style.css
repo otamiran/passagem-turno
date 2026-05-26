@@ -237,3 +237,37 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 
 /* ALMOX DESC AUTOR */
 .almox-desc-autor{font-size:9px;color:var(--mut);font-style:normal;margin-left:4px}
+
+/* ── FCA ──────────────────────────────────────────────── */
+.tbadge-f{background:rgba(155,89,182,.25);color:#b07fe0}
+.add-row-3{grid-template-columns:1fr 1fr 1fr}
+.add-btn-f{color:#b07fe0;border-color:rgba(155,89,182,.35)}.add-btn-f:hover{border-color:#b07fe0;background:rgba(155,89,182,.08)}
+
+/* FCA Sheet sections */
+.fca-section{border-radius:var(--r);padding:12px 14px;margin-bottom:2px}
+.fca-fato{background:rgba(240,165,0,.06);border:1px solid rgba(240,165,0,.2)}
+.fca-causa{background:rgba(224,80,80,.06);border:1px solid rgba(224,80,80,.2)}
+.fca-acao{background:rgba(46,204,113,.06);border:1px solid rgba(46,204,113,.2)}
+.fca-sec-hd{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.fca-fato .fca-sec-hd{color:var(--acc)}
+.fca-causa .fca-sec-hd{color:var(--red)}
+.fca-acao .fca-sec-hd{color:var(--grn)}
+.fca-sec-sub{font-weight:400;color:var(--mut);font-size:9px;letter-spacing:0}
+
+/* FCA view */
+.fca-view-section{border-radius:var(--r);padding:10px 14px}
+.fca-view-text{font-size:13px;line-height:1.65;color:var(--txt);white-space:pre-wrap;margin-top:4px}
+
+/* FCA history card */
+.fca-card{background:var(--surf2);border:1px solid var(--brd);border-left:3px solid #b07fe0;border-radius:var(--rl);overflow:hidden;margin-bottom:8px}
+.fca-card-hd{padding:10px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px}
+.fca-card-hd:hover{background:rgba(155,89,182,.06)}
+.fca-card-meta{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:3px}
+.fca-card-foot{padding:7px 10px;border-top:1px solid var(--brd);display:flex;gap:6px;background:var(--surf)}
+.fca-preview{font-size:11px;color:var(--mut);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* GPT button */
+.fca-gpt-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 14px;background:rgba(16,163,127,.1);border:1px solid rgba(16,163,127,.3);border-radius:var(--r);color:#10a37f;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .15s;text-transform:uppercase;margin-top:4px}
+.fca-gpt-btn:hover{background:rgba(16,163,127,.18);border-color:#10a37f}
+
+@media(max-width:480px){.add-row-3{grid-template-columns:1fr 1fr}}
