@@ -385,6 +385,15 @@ document.getElementById('btn-open-report').addEventListener('click', function() 
     }, 500);
   }
 });
+document.getElementById('btn-open-fca').addEventListener('click', function() {
+  if (typeof window.openFcaSheet === 'function') {
+    window.openFcaSheet();
+  } else {
+    setTimeout(function() {
+      if (typeof window.openFcaSheet === 'function') window.openFcaSheet();
+    }, 500);
+  }
+});
 </script>
 <script type="module" src="app.js"></script>
 </body>
