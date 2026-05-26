@@ -452,8 +452,10 @@ function bAtiv(d) {
 function bFull(d) { return bOcc(d) + '\n\n' + bAtiv(d); }
 
 window.updatePreview = function () {
+  const pbo = document.getElementById('pb-o');
+  if (!pbo) return; // preview removida da tela principal
   const d = getPreviewData();
-  document.getElementById('pb-o').textContent = bOcc(d);
+  pbo.textContent = bOcc(d);
   document.getElementById('pb-a').textContent = bAtiv(d);
   document.getElementById('pb-f').textContent = bFull(d);
 };
