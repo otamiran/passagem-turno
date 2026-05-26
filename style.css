@@ -253,6 +253,10 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .fca-causa .fca-sec-hd{color:var(--red)}
 .fca-acao .fca-sec-hd{color:var(--grn)}
 .fca-sec-sub{font-weight:400;color:var(--mut);font-size:9px;letter-spacing:0}
+.fca-section textarea{width:100%;min-height:90px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);color:var(--txt);font-family:var(--sans);font-size:13px;padding:9px 11px;outline:none;resize:vertical;line-height:1.6;transition:border-color .15s;box-sizing:border-box}
+.fca-fato textarea:focus{border-color:var(--acc)}
+.fca-causa textarea:focus{border-color:var(--red)}
+.fca-acao textarea:focus{border-color:var(--grn)}
 
 /* FCA view */
 .fca-view-section{border-radius:var(--r);padding:10px 14px}
@@ -269,5 +273,13 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 /* GPT button */
 .fca-gpt-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px 14px;background:rgba(16,163,127,.1);border:1px solid rgba(16,163,127,.3);border-radius:var(--r);color:#10a37f;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.5px;cursor:pointer;transition:all .15s;text-transform:uppercase;margin-top:4px}
 .fca-gpt-btn:hover{background:rgba(16,163,127,.18);border-color:#10a37f}
+.fca-ai-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:11px 14px;background:rgba(138,90,240,.1);border:1px solid rgba(138,90,240,.35);border-radius:var(--r);color:#a87ef5;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.8px;cursor:pointer;transition:all .15s;text-transform:uppercase;margin-top:4px}
+.fca-ai-btn:hover{background:rgba(138,90,240,.18);border-color:#a87ef5}
+.fca-ai-btn:disabled{opacity:.5;cursor:not-allowed}
+.fca-ai-result-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.fca-ai-result-hd span{font-family:var(--mono);font-size:9px;color:#a87ef5;letter-spacing:.5px;text-transform:uppercase}
+.fca-ai-apply-btn{background:rgba(138,90,240,.15);border:1px solid rgba(138,90,240,.4);border-radius:3px;color:#a87ef5;font-family:var(--mono);font-size:9px;padding:4px 10px;cursor:pointer;transition:all .15s}
+.fca-ai-apply-btn:hover{background:rgba(138,90,240,.28)}
+.fca-ai-result-body{background:var(--surf2);border:1px solid rgba(138,90,240,.2);border-radius:var(--r);padding:12px 14px;font-size:12px;line-height:1.7;color:var(--txt);white-space:pre-wrap;max-height:260px;overflow-y:auto}
 
 @media(max-width:480px){.add-row-3{grid-template-columns:1fr 1fr}}
