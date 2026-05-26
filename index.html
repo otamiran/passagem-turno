@@ -14,15 +14,13 @@
 <body>
 
 <nav class="nav">
-  <div class="nav-brand">
-    <div class="hex"></div>
-    <span class="nav-title">Passagem de Turno</span></div>
+  <div class="nav-brand"><div class="hex"></div><span class="nav-title">Passagem de Turno</span></div>
   <div class="nav-tabs">
     <button class="tb on" onclick="showPg('novo',this)">✦ Novo</button>
     <button class="tb" onclick="showPg('abertos',this)">◉ Abertos <span class="tbadge tbadge-b" id="cnt-open">0</span></button>
     <button class="tb" onclick="showPg('hist',this)">↺ Histórico <span class="tbadge tbadge-o" id="cnt-hist">0</span></button>
   </div>
-  <button class="tb tb-almox" id="btn-almox">📦 Lista do Almox</button>
+  <button class="tb tb-almox" id="btn-almox">📦 Lista do Almoxarifado</button>
 </nav>
 
 <!-- NOVO -->
@@ -80,7 +78,7 @@
 </div>
 <div style="position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--brd2);padding:9px 14px;display:flex;gap:7px;z-index:150">
   <button class="btn" onclick="clearForm()">↺</button>
-  <button class="btn btn-blue" onclick="openReportOnly()" style="flex:1;justify-content:center">📂 Abrir</button>
+  <button class="btn btn-blue" id="btn-open-report" style="flex:1;justify-content:center">📂 Abrir</button>
   <button class="btn btn-acc" onclick="closeToHist()" style="flex:2;justify-content:center">💾 Fechar no Histórico</button>
 </div>
 </div>
@@ -282,9 +280,17 @@ document.getElementById('btn-almox').addEventListener('click', function() {
   if (typeof window.openAlmox === 'function') {
     window.openAlmox();
   } else {
-    // Module not ready yet, retry
     setTimeout(function() {
       if (typeof window.openAlmox === 'function') window.openAlmox();
+    }, 500);
+  }
+});
+document.getElementById('btn-open-report').addEventListener('click', function() {
+  if (typeof window.openReportOnly === 'function') {
+    window.openReportOnly();
+  } else {
+    setTimeout(function() {
+      if (typeof window.openReportOnly === 'function') window.openReportOnly();
     }, 500);
   }
 });
