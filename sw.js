@@ -1,5 +1,5 @@
-const CACHE = 'turno-v1';
-const FILES = ['./index.html', './manifest.json'];
+const CACHE = 'turno-v2';
+const FILES = ['./index.html', './manifest.json', './style.css', './app.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
@@ -14,7 +14,15 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  const url = new URL(e.request.url);
+
+  // Nunca intercepta requisições para outros domínios (Supabase, APIs, etc.)
+  if (url.origin !== self.location.origin) {
+    return; // deixa o browser fazer a requisição normalmente
+  }
+
+  // Apenas arquivos do próprio app usam cache
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html')))
+    caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
