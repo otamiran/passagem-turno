@@ -125,6 +125,7 @@ function makeItemRow(it, idx) {
     </div>
     <span class="sdot ${dot}"></span>
     <div class="item-btns">
+      ${isOcc ? `<button class="btn btn-fca" style="padding:3px 8px;font-size:9px" onclick="gerarFcaDeOcorrencia(${idx})" title="Gerar FCA">FCA</button>` : ''}
       <button class="btn btn-blue" style="padding:3px 8px;font-size:9px" onclick="editItem(${idx})">✏</button>
       <button class="btn btn-red"  style="padding:3px 8px;font-size:9px" onclick="deleteItem(${idx})">✕</button>
     </div>`;
@@ -139,6 +140,32 @@ window.editItem = function (idx) {
   sheetPhotos = (it.fotos || []).map(f => ({ url: f.url, storagePath: f.path, file: null, dataUrl: f.url }));
   openSheet(it.tipo, it);
 };
+// ── GERAR FCA A PARTIR DE OCORRÊNCIA ────────────────────
+window.gerarFcaDeOcorrencia = function (idx) {
+  if (!activeOpenId) return;
+  const r = openCache.find(x => x.id === activeOpenId); if (!r) return;
+  const it = (r.itens || [])[idx]; if (!it || it.tipo !== 'occ') return;
+
+  // Pré-preenche o sheet de FCA com dados da ocorrência
+  document.getElementById('fca-equip').value = it.equip || '';
+  document.getElementById('fca-data').value  = document.getElementById('f-data').value || new Date().toISOString().split('T')[0];
+
+  // Fato: sintoma observado
+  document.getElementById('fca-fato').value  = it.sintoma || '';
+
+  // Causa: modo de falha + impacto como ponto de partida
+  const causaSugestao = [it.modo, it.impacto].filter(Boolean).join(' — ');
+  document.getElementById('fca-causa').value = causaSugestao || '';
+
+  // Ação: solução aplicada
+  document.getElementById('fca-acao').value  = it.solucao || '';
+
+  // Abre o sheet
+  document.getElementById('ov-fca').classList.add('on');
+  showToast('FCA pré-preenchido com dados da ocorrência.');
+};
+
+
 
 window.deleteItem = function (idx) {
   if (!activeOpenId) return;
@@ -1323,20 +1350,18 @@ async function chamarIAFca(prompt, btnEl, resultEl, textEl) {
   resultEl.style.display = 'none';
   fcaIaSugestao = null;
   try {
-    const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
-    if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
     const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
+    // parse JSON
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     fcaIaSugestao = parsed;
@@ -1382,19 +1407,16 @@ window.refinarFcaViewIA = async function () {
   if (!btn) return;
   btn.disabled = true; btn.textContent = '✦ Refinando...';
   try {
-    const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }]
       })
     });
-    if (!resp.ok) throw new Error(`Erro HTTP ${resp.status}`);
     const data = await resp.json();
-    if (data.error) throw new Error(data.error.message);
     const raw = (data.content || []).map(b => b.text || '').join('').trim();
     const clean = raw.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
