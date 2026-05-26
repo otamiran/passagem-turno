@@ -393,24 +393,28 @@ window.closeToHist = async function () {
 // ── ABRIR RELATÓRIO SEM OCORRÊNCIA ───────────────────────
 window.openReportOnly = async function () {
   if (!nome) { showToast('Informe seu nome.', 1); return; }
-  const setor = getSetor();
+  const setor = getSetor() || document.getElementById('f-setor').value.trim();
   if (!setor) { showToast('Informe o setor.', 1); return; }
   if (!document.getElementById('f-data').value) { showToast('Informe a data.', 1); return; }
   if (!getHdrT()) { showToast('Selecione o turno.', 1); return; }
-  // If already editing an open report, just show confirmation
-  if (activeOpenId) { showToast('Relatório já está aberto. Use "Fechar no Histórico" para finalizar.'); return; }
+  if (activeOpenId) { showToast('Já há um relatório aberto. Feche-o antes de abrir outro.', 1); return; }
   askConf(`Abrir relatório de "${setor}" sem ocorrências?`, async () => {
     try {
       setSt('load', 'Salvando...');
-      await sb.from(CO).insert({
+      const { data, error } = await sb.from(CO).insert({
         setor, data: document.getElementById('f-data').value,
         turno: getHdrT(), itens: [],
         criado_em: Date.now(), criado_por: nome, nome_turno: nome
-      });
+      }).select().single();
+      if (error) throw error;
+      activeOpenId = data.id;
+      document.getElementById('f-sel').value = data.id;
+      document.getElementById('f-setor').value = '';
+      document.getElementById('auto-ind').style.display = 'flex';
+      openCache.unshift(data); refreshSel();
       setSt('ok', 'Conectado');
       showToast('✓ Relatório aberto!');
-      clearForm(true);
-    } catch (e) { setSt('err', 'Erro: ' + e.message); showToast('Erro.', 1); }
+    } catch (e) { setSt('err', 'Erro: ' + e.message); showToast('Erro: ' + e.message, 1); }
   });
 };
 
