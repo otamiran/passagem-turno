@@ -14,7 +14,8 @@ body{background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:14p
 .nav{background:var(--surf);border-bottom:2px solid var(--acc);display:flex;align-items:stretch;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.4)}
 .nav-brand{padding:12px 14px;display:flex;align-items:center;gap:9px;border-right:1px solid var(--brd)}
 .hex{width:26px;height:26px;background:var(--acc);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0}
-.nav-title{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:2px;color:var(--acc);text-transform:uppercase}
+.nav-logo{width:32px;height:32px;object-fit:contain;flex-shrink:0;border-radius:6px}
+.nav-title{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:0.5px;color:var(--acc);text-transform:uppercase}
 .nav-tabs{display:flex;flex:1;overflow-x:auto}
 .tb{background:none;border:none;border-bottom:2px solid transparent;color:var(--mut);cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:1px;padding:0 14px;text-transform:uppercase;transition:all .15s;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:5px}
 .tb:hover{color:var(--txt)}.tb.on{border-bottom-color:var(--acc);color:var(--acc)}
