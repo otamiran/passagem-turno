@@ -1342,8 +1342,4 @@ function startFcaRT() {
     .subscribe();
 }
 
-// wire FCA button (module-safe)
-window.addEventListener('load', () => {
-  const btn = document.getElementById('btn-open-fca');
-  if (btn) btn.addEventListener('click', () => window.openFcaSheet());
-});
+// FCA button wired via inline script in index.html
