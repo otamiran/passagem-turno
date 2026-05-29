@@ -153,12 +153,17 @@ window.gerarFcaDeOcorrencia = function (idx) {
   // Fato: sintoma observado
   document.getElementById('fca-fato').value  = it.sintoma || '';
 
-  // Causa: modo de falha + impacto como ponto de partida
-  const causaSugestao = [it.modo, it.impacto].filter(Boolean).join(' — ');
-  document.getElementById('fca-causa').value = causaSugestao || '';
+  // Causa: deixar vazio para a IA derivar das descrições
+  // (modo de falha será passado como contexto separado no prompt, não como causa)
+  document.getElementById('fca-causa').value = '';
 
   // Ação: solução aplicada
   document.getElementById('fca-acao').value  = it.solucao || '';
+
+  // Guardar modo e impacto como atributo do formulário para o prompt
+  document.getElementById('ov-fca').dataset.modo    = it.modo    || '';
+  document.getElementById('ov-fca').dataset.impacto = it.impacto || '';
+  document.getElementById('ov-fca').dataset.tipo_int = it.tipo_int || '';
 
   // Abre o sheet
   document.getElementById('ov-fca').classList.add('on');
@@ -1329,15 +1334,34 @@ window.deleteFca = function (id) {
 // ── IA INLINE (Claude API) ───────────────────────────────
 let fcaIaSugestao = null; // parsed {fato, causa, acao}
 
-function buildFcaPrompt(fato, causa, acao, equip) {
-  const parts = [];
-  if (equip) parts.push(`Equipamento/Setor: ${equip}`);
-  if (fato)  parts.push(`FATO: ${fato}`);
-  if (causa) parts.push(`CAUSA: ${causa}`);
-  if (acao)  parts.push(`AÇÃO: ${acao}`);
-  return `Você é um engenheiro de manutenção industrial sênior. Elabore, organize e reescreva o seguinte registro de FCA em linguagem técnica formal, clara e objetiva. Corrija erros gramaticais, use terminologia técnica adequada e torne o texto profissional. Mantenha as informações originais, apenas melhore a redação e organização.
+function buildFcaPrompt(fato, causa, acao, equip, modo, impacto, tipo_int) {
+  const ctx = [];
+  if (equip)    ctx.push('Equipamento: ' + equip);
+  if (modo)     ctx.push('Modo de falha (classificação): ' + modo);
+  if (impacto)  ctx.push('Impacto operacional: ' + impacto);
+  if (tipo_int) ctx.push('Tipo de intervenção: ' + tipo_int);
 
-${parts.join('\n')}
+  const campos = [];
+  if (fato)  campos.push('FATO (o que aconteceu): ' + fato);
+  if (causa) campos.push('CAUSA (rascunho): ' + causa);
+  if (acao)  campos.push('AÇÃO (o que foi feito): ' + acao);
+
+  const modoFinal = [modo, impacto].filter(Boolean).join(' — ') || 'não informado';
+
+  return `Você é um engenheiro de manutenção industrial sênior. Analise as descrições abaixo e reescreva o FCA em linguagem técnica formal.
+
+REGRAS IMPORTANTES:
+- O campo "fato" deve descrever objetivamente o sintoma observado.
+- O campo "causa" deve ser DERIVADO das descrições textuais do fato e da ação — NÃO use o modo de falha como causa. O modo de falha é apenas uma classificação, não uma explicação técnica.
+- O campo "acao" deve descrever a intervenção realizada de forma técnica e ao final sempre incluir: "Modo de falha: ${modoFinal}".
+- Corrija erros gramaticais e use terminologia técnica adequada.
+- Mantenha as informações originais, apenas melhore a redação.
+
+CONTEXTO DA OCORRÊNCIA:
+${ctx.join('\n')}
+
+DADOS PARA ELABORAÇÃO:
+${campos.join('\n')}
 
 Responda SOMENTE com um JSON no formato:
 {"fato":"...","causa":"...","acao":"..."}
@@ -1387,8 +1411,12 @@ window.elaborarFcaIA = function () {
   const causa = document.getElementById('fca-causa').value.trim();
   const acao  = document.getElementById('fca-acao').value.trim();
   const equip = document.getElementById('fca-equip').value.trim();
+  const ds    = document.getElementById('ov-fca').dataset;
+  const modo  = ds.modo    || '';
+  const impacto = ds.impacto  || '';
+  const tipo_int = ds.tipo_int || '';
   if (!fato && !causa && !acao) { showToast('Preencha ao menos um campo antes de elaborar.', 1); return; }
-  const prompt = buildFcaPrompt(fato, causa, acao, equip);
+  const prompt = buildFcaPrompt(fato, causa, acao, equip, modo, impacto, tipo_int);
   const btnEl   = document.getElementById('btn-fca-ai');
   const resultEl = document.getElementById('fca-ai-result');
   const textEl   = document.getElementById('fca-ai-text');
@@ -1406,7 +1434,7 @@ window.aplicarSugestaoIA = function () {
 
 window.refinarFcaViewIA = async function () {
   const r = fcaCache.find(x => x.id === fcaViewId); if (!r) return;
-  const prompt = buildFcaPrompt(r.fato, r.causa, r.acao, r.equip);
+  const prompt = buildFcaPrompt(r.fato, r.causa, r.acao, r.equip, r.modo || '', r.impacto || '', r.tipo_int || '');
   // Use a temporary button state in the modal
   const btn = document.querySelector('#ov-fca-view .fca-ai-btn');
   if (!btn) return;
