@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#b07fe0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FCA — Manutenção">
+<title>FCA — Fato · Causa · Ação</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fca.css">
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <img src="logo.png" class="nav-logo" alt="Logo">
+    <div>
+      <div class="nav-title">FCA</div>
+      <div class="nav-sub">Fato · Causa · Ação</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div id="db-st" class="sbar sb-load"><span class="puls"></span> Conectando...</div>
+    <button class="btn btn-fca-new" onclick="openFcaSheet()">⚡ + Novo FCA</button>
+    <a href="index.html" class="btn btn-back">← Relatórios</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="wrap">
+
+  <!-- Nome do usuário -->
+  <div class="card" id="card-nome">
+    <div class="card-hd"><span class="card-lbl">Identificação</span></div>
+    <div class="card-bd">
+      <div class="fg">
+        <label>Seu nome</label>
+        <div style="display:flex;gap:7px">
+          <input type="text" id="f-nome" placeholder="Ex: João — Turno Noite" style="flex:1">
+          <button class="btn btn-acc" onclick="saveNome()">✓ OK</button>
+        </div>
+      </div>
+      <div id="nbanner"></div>
+    </div>
+  </div>
+
+  <!-- Filtro / busca -->
+  <div class="search-bar">
+    <div style="position:relative;flex:1">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="fca-search" class="search-input" placeholder="Buscar por equipamento, fato, causa ou ação..." oninput="filterFcas()">
+    </div>
+    <div id="fca-count" class="fca-count">—</div>
+  </div>
+
+  <!-- Lista de FCAs -->
+  <div id="fca-list"></div>
+
+</div>
+
+<!-- ── SHEET: NOVO / EDITAR FCA ─────────────────────────── -->
+<div class="ov" id="ov-fca">
+  <div class="sheet">
+    <div class="sheet-hd">
+      <span class="sheet-title" id="fca-sheet-title">⚡ Novo FCA</span>
+      <button class="sheet-close" onclick="closeFcaSheet()">✕</button>
+    </div>
+    <div class="sheet-scroll">
+
+      <div class="fg">
+        <label>Setor / Equipamento</label>
+        <input type="text" id="fca-equip" placeholder="Ex: Prensa 429 — Linha 3">
+      </div>
+      <div class="fg">
+        <label>Data</label>
+        <input type="date" id="fca-data">
+      </div>
+
+      <div class="fca-section fca-fato">
+        <div class="fca-sec-hd">📌 FATO <span class="fca-sec-sub">O que aconteceu?</span></div>
+        <textarea id="fca-fato" rows="3" placeholder="Descreva o fato ocorrido de forma objetiva..."></textarea>
+      </div>
+
+      <div class="fca-section fca-causa">
+        <div class="fca-sec-hd">🔍 CAUSA <span class="fca-sec-sub">Por que aconteceu?</span></div>
+        <textarea id="fca-causa" rows="3" placeholder="Identifique a causa raiz do problema..."></textarea>
+      </div>
+
+      <div class="fca-section fca-acao">
+        <div class="fca-sec-hd">✅ AÇÃO <span class="fca-sec-sub">O que foi / será feito?</span></div>
+        <textarea id="fca-acao" rows="3" placeholder="Descreva a ação corretiva ou preventiva adotada..."></textarea>
+      </div>
+
+      <button class="fca-ai-btn" id="btn-fca-ai" onclick="elaborarFcaIA()">
+        ✦ Elaborar com IA
+      </button>
+      <div id="fca-ai-result" style="display:none">
+        <div class="fca-ai-result-hd">
+          <span>✦ Sugestão da IA — revise e aplique campo a campo</span>
+          <button class="fca-ai-apply-btn" onclick="aplicarSugestaoIA()">↓ Aplicar nos campos</button>
+        </div>
+        <div class="fca-ai-result-body" id="fca-ai-text">—</div>
+      </div>
+
+    </div>
+    <div class="sheet-foot">
+      <button class="btn" onclick="closeFcaSheet()">Cancelar</button>
+      <button class="btn btn-acc" id="fca-save-btn" onclick="saveFca()" style="flex:2">✓ Salvar FCA</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── VIEW MODAL ─────────────────────────────────────────── -->
+<div class="ov ov-center" id="ov-fca-view">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hd">
+      <h2 id="fca-view-title">FCA</h2>
+      <button class="mc" onclick="closeOv('ov-fca-view')">✕</button>
+    </div>
+    <div class="modal-body" style="gap:12px">
+      <div class="fca-view-section fca-fato">
+        <div class="fca-sec-hd">📌 FATO</div>
+        <div class="fca-view-text" id="fv-fato">—</div>
+      </div>
+      <div class="fca-view-section fca-causa">
+        <div class="fca-sec-hd">🔍 CAUSA</div>
+        <div class="fca-view-text" id="fv-causa">—</div>
+      </div>
+      <div class="fca-view-section fca-acao">
+        <div class="fca-sec-hd">✅ AÇÃO</div>
+        <div class="fca-view-text" id="fv-acao">—</div>
+      </div>
+      <div id="fca-view-meta" style="font-family:var(--mono);font-size:10px;color:var(--mut)"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-grn" onclick="copyFcaView()">📋 Copiar</button>
+        <button class="btn btn-blue" onclick="editFcaView()">✏ Editar</button>
+        <button class="fca-ai-btn" style="flex:1" onclick="refinarFcaViewIA()">✦ Refinar com IA</button>
+        <button class="btn btn-red" id="fca-del-btn" onclick="deleteFcaView()">🗑 Excluir</button>
+        <button class="btn" onclick="closeOv('ov-fca-view')">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CONFIRM MODAL ──────────────────────────────────────── -->
+<div class="ov ov-center" id="ov-confirm">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-hd"><h2>Confirmar</h2><button class="mc" onclick="closeOv('ov-confirm')">✕</button></div>
+    <div class="modal-body confirm-bd">
+      <p id="conf-msg">Confirmar?</p>
+      <div style="display:flex;gap:8px;justify-content:center">
+        <button class="btn btn-acc" id="conf-ok">Confirmar</button>
+        <button class="btn" onclick="closeOv('ov-confirm')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="fca.js"></script>
+</body>
+</html>
