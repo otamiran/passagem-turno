@@ -145,29 +145,19 @@ window.gerarFcaDeOcorrencia = function (idx) {
   if (!activeOpenId) return;
   const r = openCache.find(x => x.id === activeOpenId); if (!r) return;
   const it = (r.itens || [])[idx]; if (!it || it.tipo !== 'occ') return;
-
-  // Pré-preenche o sheet de FCA com dados da ocorrência
-  document.getElementById('fca-equip').value = it.equip || '';
-  document.getElementById('fca-data').value  = document.getElementById('f-data').value || new Date().toISOString().split('T')[0];
-
-  // Fato: sintoma observado
-  document.getElementById('fca-fato').value  = it.sintoma || '';
-
-  // Causa: deixar vazio para a IA derivar das descrições
-  // (modo de falha será passado como contexto separado no prompt, não como causa)
-  document.getElementById('fca-causa').value = '';
-
-  // Ação: solução aplicada
-  document.getElementById('fca-acao').value  = it.solucao || '';
-
-  // Guardar modo e impacto como atributo do formulário para o prompt
-  document.getElementById('ov-fca').dataset.modo    = it.modo    || '';
-  document.getElementById('ov-fca').dataset.impacto = it.impacto || '';
-  document.getElementById('ov-fca').dataset.tipo_int = it.tipo_int || '';
-
-  // Abre o sheet
-  document.getElementById('ov-fca').classList.add('on');
-  showToast('FCA pré-preenchido com dados da ocorrência.');
+  // Abre a página de FCA em nova aba com dados da ocorrência via query string
+  const p = new URLSearchParams({
+    equip:    it.equip    || '',
+    data:     document.getElementById('f-data').value || new Date().toISOString().split('T')[0],
+    fato:     it.sintoma  || '',
+    acao:     it.solucao  || '',
+    modo:     it.modo     || '',
+    impacto:  it.impacto  || '',
+    tipo_int: it.tipo_int || '',
+    novo:     '1'
+  });
+  window.open('fca.html?' + p.toString(), '_blank');
+  showToast('Abrindo FCA pré-preenchido em nova aba.');
 };
 
 
@@ -510,7 +500,7 @@ async function loadInitialData() {
   if (e2) return;
   histCache = histData || [];
   document.getElementById('cnt-hist').textContent = histCache.length;
-  await loadFcas();
+
   setSt('ok', `Conectado — ${openCache.length} aberto(s), ${histCache.length} no histórico`);
 }
 
@@ -541,7 +531,7 @@ function startRT() {
     .subscribe();
 
   realtimeSubs = [sub1, sub2];
-  startFcaRT();
+
 }
 
 // ── RENDER OPEN ──────────────────────────────────────────
@@ -872,7 +862,6 @@ window.showPg = function (id, btn) {
   if (btn) btn.classList.add('on');
   if (id === 'abertos') renderOpen();
   if (id === 'hist') renderHistory();
-  if (id === 'fca') renderFcaList();
 };
 
 // WhatsApp
@@ -1219,267 +1208,3 @@ window.saveAlmoxDesc = async function () {
 // expose for inline onclick
 window.promptAdminPass   = promptAdminPass;
 window.updateAlmoxAdminUI = updateAlmoxAdminUI;
-
-// ── FCA ──────────────────────────────────────────────────
-const FCA_TABLE = 'fcas';
-let fcaCache = [];
-let fcaViewId = null;
-
-// ── OPEN / CLOSE SHEET ───────────────────────────────────
-window.openFcaSheet = function () {
-  document.getElementById('fca-equip').value = '';
-  document.getElementById('fca-data').value  = new Date().toISOString().split('T')[0];
-  document.getElementById('fca-fato').value  = '';
-  document.getElementById('fca-causa').value = '';
-  document.getElementById('fca-acao').value  = '';
-  document.getElementById('ov-fca').classList.add('on');
-};
-
-window.closeFcaSheet = function () {
-  document.getElementById('ov-fca').classList.remove('on');
-};
-
-// ── SAVE ─────────────────────────────────────────────────
-window.saveFca = async function () {
-  if (!nome) { showToast('Informe seu nome primeiro.', 1); return; }
-  const fato  = document.getElementById('fca-fato').value.trim();
-  const causa = document.getElementById('fca-causa').value.trim();
-  const acao  = document.getElementById('fca-acao').value.trim();
-  if (!fato && !causa && !acao) { showToast('Preencha ao menos um campo.', 1); return; }
-
-  const payload = {
-    equip:      document.getElementById('fca-equip').value.trim(),
-    data:       document.getElementById('fca-data').value,
-    fato, causa, acao,
-    autor:      nome,
-    criado_em:  Date.now()
-  };
-  try {
-    const { error } = await sb.from(FCA_TABLE).insert(payload);
-    if (error) throw error;
-    closeFcaSheet();
-    showToast('✓ FCA salvo!');
-  } catch (e) { showToast('Erro: ' + e.message, 1); }
-};
-
-// ── LOAD ─────────────────────────────────────────────────
-async function loadFcas() {
-  const { data, error } = await sb.from(FCA_TABLE).select('*').order('criado_em', { ascending: false });
-  if (error) return;
-  fcaCache = data || [];
-  document.getElementById('cnt-fca').textContent = fcaCache.length || '';
-  if (document.getElementById('pg-fca').classList.contains('on')) renderFcaList();
-}
-
-// ── RENDER LIST ──────────────────────────────────────────
-function renderFcaList() {
-  const el = document.getElementById('fca-list');
-  if (!fcaCache.length) {
-    el.innerHTML = `<div class="empty"><div class="ico">⚡</div><p>Nenhum FCA registrado ainda.</p></div>`;
-    return;
-  }
-  el.innerHTML = fcaCache.map(r => {
-    const df = r.data ? new Date(r.data + 'T12:00').toLocaleDateString('pt-BR') : '—';
-    const preview = [r.fato, r.causa, r.acao].filter(Boolean).join(' · ').slice(0, 120);
-    return `<div class="fca-card">
-      <div class="fca-card-hd" onclick="viewFca('${r.id}')">
-        <div style="flex:1">
-          <div style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--lbl)">${r.equip || 'Sem equipamento'} <span style="color:#b07fe0">⚡ FCA</span></div>
-          <div class="fca-card-meta">${df} · ${r.autor || '—'}</div>
-          <div class="fca-preview">${preview || '—'}</div>
-        </div>
-      </div>
-      <div class="fca-card-foot">
-        <button class="btn btn-grn" onclick="viewFca('${r.id}')">👁 Ver</button>
-        <button class="fca-ai-btn" style="flex:1;padding:7px;margin-top:0" onclick="viewFca('${r.id}')">✦ Ver / Refinar</button>
-        <button class="btn btn-red" onclick="deleteFca('${r.id}')">🗑</button>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── VIEW MODAL ───────────────────────────────────────────
-window.viewFca = function (id) {
-  const r = fcaCache.find(x => x.id === id); if (!r) return;
-  fcaViewId = id;
-  const df = r.data ? new Date(r.data + 'T12:00').toLocaleDateString('pt-BR') : '—';
-  document.getElementById('fca-view-title').textContent = `${r.equip || 'FCA'} — ${df}`;
-  document.getElementById('fv-fato').textContent  = r.fato  || '—';
-  document.getElementById('fv-causa').textContent = r.causa || '—';
-  document.getElementById('fv-acao').textContent  = r.acao  || '—';
-  document.getElementById('ov-fca-view').classList.add('on');
-};
-
-window.copyFcaView = function () {
-  const r = fcaCache.find(x => x.id === fcaViewId); if (!r) return;
-  const df = r.data ? new Date(r.data + 'T12:00').toLocaleDateString('pt-BR') : '—';
-  const txt = `⚡ FCA — ${r.equip || '—'} | ${df}\nAutor: ${r.autor || '—'}\n\n📌 FATO\n${r.fato || '—'}\n\n🔍 CAUSA\n${r.causa || '—'}\n\n✅ AÇÃO\n${r.acao || '—'}`;
-  navigator.clipboard.writeText(txt).then(() => showToast('✓ FCA copiado!')).catch(() => showToast('Erro ao copiar', 1));
-};
-
-window.deleteFcaView = function () {
-  if (!fcaViewId) return;
-  closeOv('ov-fca-view');
-  deleteFca(fcaViewId);
-};
-
-window.deleteFca = function (id) {
-  askConf('Excluir este FCA permanentemente?', async () => {
-    const { error } = await sb.from(FCA_TABLE).delete().eq('id', id);
-    if (error) showToast('Erro: ' + error.message, 1);
-    else showToast('FCA excluído.');
-  });
-};
-
-// ── IA INLINE (Claude API) ───────────────────────────────
-let fcaIaSugestao = null; // parsed {fato, causa, acao}
-
-function buildFcaPrompt(fato, causa, acao, equip, modo, impacto, tipo_int) {
-  const ctx = [];
-  if (equip)    ctx.push('Equipamento: ' + equip);
-  if (modo)     ctx.push('Modo de falha (classificação): ' + modo);
-  if (impacto)  ctx.push('Impacto operacional: ' + impacto);
-  if (tipo_int) ctx.push('Tipo de intervenção: ' + tipo_int);
-
-  const campos = [];
-  if (fato)  campos.push('FATO (o que aconteceu): ' + fato);
-  if (causa) campos.push('CAUSA (rascunho): ' + causa);
-  if (acao)  campos.push('AÇÃO (o que foi feito): ' + acao);
-
-  const modoFinal = [modo, impacto].filter(Boolean).join(' — ') || 'não informado';
-
-  return `Você é um engenheiro de manutenção industrial sênior. Analise as descrições abaixo e reescreva o FCA em linguagem técnica formal.
-
-REGRAS IMPORTANTES:
-- O campo "fato" deve descrever objetivamente o sintoma observado.
-- O campo "causa" deve ser DERIVADO das descrições textuais do fato e da ação — NÃO use o modo de falha como causa. O modo de falha é apenas uma classificação, não uma explicação técnica.
-- O campo "acao" deve descrever a intervenção realizada de forma técnica e ao final sempre incluir: "Modo de falha: ${modoFinal}".
-- Corrija erros gramaticais e use terminologia técnica adequada.
-- Mantenha as informações originais, apenas melhore a redação.
-
-CONTEXTO DA OCORRÊNCIA:
-${ctx.join('\n')}
-
-DADOS PARA ELABORAÇÃO:
-${campos.join('\n')}
-
-Responda SOMENTE com um JSON no formato:
-{"fato":"...","causa":"...","acao":"..."}
-Sem markdown, sem explicações, apenas o JSON.`;
-}
-
-async function chamarIAFca(prompt, btnEl, resultEl, textEl) {
-  btnEl.disabled = true;
-  btnEl.textContent = '✦ Elaborando...';
-  resultEl.style.display = 'none';
-  fcaIaSugestao = null;
-  try {
-    const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
-      },
-      body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const rawText = await resp.text();
-    if (!rawText || rawText.trim() === '') throw new Error('Resposta vazia. Verifique se GROQ_KEY está configurada no Supabase.');
-    let data;
-    try { data = JSON.parse(rawText); } catch(e) { throw new Error('Resposta inválida: ' + rawText.substring(0, 120)); }
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-    const raw = (data.content || []).map(b => b.text || '').join('').trim();
-    if (!raw) throw new Error('IA retornou texto vazio.');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    fcaIaSugestao = parsed;
-    const display = `📌 FATO\n${parsed.fato || '—'}\n\n🔍 CAUSA\n${parsed.causa || '—'}\n\n✅ AÇÃO\n${parsed.acao || '—'}`;
-    textEl.textContent = display;
-    resultEl.style.display = 'block';
-    showToast('✓ Sugestão gerada! Revise e clique em "Aplicar".');
-  } catch (e) {
-    showToast('Erro ao chamar IA: ' + e.message, 1);
-  } finally {
-    btnEl.disabled = false;
-    btnEl.textContent = '✦ Elaborar com IA';
-  }
-}
-
-window.elaborarFcaIA = function () {
-  const fato  = document.getElementById('fca-fato').value.trim();
-  const causa = document.getElementById('fca-causa').value.trim();
-  const acao  = document.getElementById('fca-acao').value.trim();
-  const equip = document.getElementById('fca-equip').value.trim();
-  const ds    = document.getElementById('ov-fca').dataset;
-  const modo  = ds.modo    || '';
-  const impacto = ds.impacto  || '';
-  const tipo_int = ds.tipo_int || '';
-  if (!fato && !causa && !acao) { showToast('Preencha ao menos um campo antes de elaborar.', 1); return; }
-  const prompt = buildFcaPrompt(fato, causa, acao, equip, modo, impacto, tipo_int);
-  const btnEl   = document.getElementById('btn-fca-ai');
-  const resultEl = document.getElementById('fca-ai-result');
-  const textEl   = document.getElementById('fca-ai-text');
-  chamarIAFca(prompt, btnEl, resultEl, textEl);
-};
-
-window.aplicarSugestaoIA = function () {
-  if (!fcaIaSugestao) return;
-  if (fcaIaSugestao.fato)  document.getElementById('fca-fato').value  = fcaIaSugestao.fato;
-  if (fcaIaSugestao.causa) document.getElementById('fca-causa').value = fcaIaSugestao.causa;
-  if (fcaIaSugestao.acao)  document.getElementById('fca-acao').value  = fcaIaSugestao.acao;
-  document.getElementById('fca-ai-result').style.display = 'none';
-  showToast('✓ Campos preenchidos com a sugestão!');
-};
-
-window.refinarFcaViewIA = async function () {
-  const r = fcaCache.find(x => x.id === fcaViewId); if (!r) return;
-  const prompt = buildFcaPrompt(r.fato, r.causa, r.acao, r.equip, r.modo || '', r.impacto || '', r.tipo_int || '');
-  // Use a temporary button state in the modal
-  const btn = document.querySelector('#ov-fca-view .fca-ai-btn');
-  if (!btn) return;
-  btn.disabled = true; btn.textContent = '✦ Refinando...';
-  try {
-    const resp = await fetch('https://tdpgaqiktinngiuptatq.supabase.co/functions/v1/ia-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcGdhcWlrdGlubmdpdXB0YXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1MjUwNjAsImV4cCI6MjA5NDEwMTA2MH0.a76Kgj9Flj6NkasYETC5BXMoIhXMBoCUM-w2BqJBlS4'
-      },
-      body: JSON.stringify({
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const rawText = await resp.text();
-    if (!rawText || rawText.trim() === '') throw new Error('Resposta vazia da IA.');
-    let data;
-    try { data = JSON.parse(rawText); } catch(e) { throw new Error('Resposta inválida: ' + rawText.substring(0, 120)); }
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-    const raw = (data.content || []).map(b => b.text || '').join('').trim();
-    if (!raw) throw new Error('IA retornou texto vazio.');
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
-    // Update the view fields
-    if (parsed.fato)  document.getElementById('fv-fato').textContent  = parsed.fato;
-    if (parsed.causa) document.getElementById('fv-causa').textContent = parsed.causa;
-    if (parsed.acao)  document.getElementById('fv-acao').textContent  = parsed.acao;
-    // Save back to Supabase
-    await sb.from(FCA_TABLE).update({ fato: parsed.fato, causa: parsed.causa, acao: parsed.acao }).eq('id', fcaViewId);
-    showToast('✓ FCA refinado e salvo!');
-  } catch(e) {
-    showToast('Erro: ' + e.message, 1);
-  } finally {
-    btn.disabled = false; btn.textContent = '✦ Refinar com IA';
-  }
-};
-
-// ── REALTIME ─────────────────────────────────────────────
-function startFcaRT() {
-  sb.channel('rt-fca')
-    .on('postgres_changes', { event: '*', schema: 'public', table: FCA_TABLE }, async () => {
-      await loadFcas();
-    })
-    .subscribe();
-}
-
-// FCA button wired via inline script in index.html
