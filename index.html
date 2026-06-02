@@ -19,7 +19,7 @@
     <button class="tb on" onclick="showPg('novo',this)">✦ Novo</button>
     <button class="tb" onclick="showPg('abertos',this)">◉ Abertos <span class="tbadge tbadge-b" id="cnt-open">0</span></button>
     <button class="tb" onclick="showPg('hist',this)">↺ Histórico <span class="tbadge tbadge-o" id="cnt-hist">0</span></button>
-    <button class="tb" onclick="showPg('fca',this)">⚡ FCA <span class="tbadge tbadge-f" id="cnt-fca">0</span></button>
+    <a class="tb" href="fca.html" target="_blank">⚡ FCA</a>
     <button class="tb tb-almox" id="btn-almox">📦 Almoxarifado</button>
   </div>
   
@@ -72,9 +72,9 @@
   <div id="items-list" style="display:flex;flex-direction:column;gap:8px;"></div>
 
   <div class="add-row add-row-3">
-    <div class="add-btn add-btn-o" onclick="openSheet('occ')"><span style="font-size:20px">🔧</span>+ Ocorrência</div>
-    <div class="add-btn add-btn-a" onclick="openSheet('ativ')"><span style="font-size:20px">📅</span>+ Atividade</div>
-    <div class="add-btn add-btn-f" onclick="triggerFca()"><span style="font-size:20px">⚡</span>+ FCA</div>
+    <div class="add-btn add-btn-o" onclick="openSheet('occ')" style="grid-column:span 1"><span style="font-size:20px">🔧</span>+ Ocorrência</div>
+    <div class="add-btn add-btn-a" onclick="openSheet('ativ')" style="grid-column:span 1"><span style="font-size:20px">📅</span>+ Atividade</div>
+    <div class="add-btn" style="border-color:rgba(176,127,224,.35);color:#b07fe0;grid-column:span 1" onclick="window.open('fca.html','_blank')"><span style="font-size:20px">⚡</span>+ FCA</div>
   </div>
 
 
@@ -99,15 +99,6 @@
 <div class="wrap"><div id="hist-list"></div></div>
 </div>
 
-<!-- FCA -->
-<div class="pg" id="pg-fca">
-<div class="wrap">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <div style="font-family:var(--mono);font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase">Histórico de FCAs — Fato · Causa · Ação</div>
-  </div>
-  <div id="fca-list"></div>
-</div>
-</div>
 
 <!-- SHEET: ADICIONAR / EDITAR ITEM -->
 <div class="ov" id="ov-sheet">
@@ -211,87 +202,6 @@
 </div>
 
 
-<!-- FCA MODAL -->
-<div class="ov" id="ov-fca">
-  <div class="sheet">
-    <div class="sheet-hd">
-      <span class="sheet-title">⚡ Novo FCA</span>
-      <button class="sheet-close" onclick="closeFcaSheet()">✕</button>
-    </div>
-    <div class="sheet-scroll">
-
-      <div class="fg">
-        <label>Setor / Equipamento</label>
-        <input type="text" id="fca-equip" placeholder="Ex: Prensa 429 — Linha 3">
-      </div>
-      <div class="fg">
-        <label>Data</label>
-        <input type="date" id="fca-data">
-      </div>
-
-      <div class="fca-section fca-fato">
-        <div class="fca-sec-hd">📌 FATO <span class="fca-sec-sub">O que aconteceu?</span></div>
-        <textarea id="fca-fato" rows="3" placeholder="Descreva o fato ocorrido de forma objetiva..."></textarea>
-      </div>
-
-      <div class="fca-section fca-causa">
-        <div class="fca-sec-hd">🔍 CAUSA <span class="fca-sec-sub">Por que aconteceu?</span></div>
-        <textarea id="fca-causa" rows="3" placeholder="Identifique a causa raiz do problema..."></textarea>
-      </div>
-
-      <div class="fca-section fca-acao">
-        <div class="fca-sec-hd">✅ AÇÃO <span class="fca-sec-sub">O que foi / será feito?</span></div>
-        <textarea id="fca-acao" rows="3" placeholder="Descreva a ação corretiva ou preventiva adotada..."></textarea>
-      </div>
-
-      <button class="fca-ai-btn" id="btn-fca-ai" onclick="elaborarFcaIA()">
-        ✦ Elaborar com IA
-      </button>
-      <div id="fca-ai-result" style="display:none">
-        <div class="fca-ai-result-hd">
-          <span>✦ Sugestão da IA — revise e aplique campo a campo</span>
-          <button class="fca-ai-apply-btn" onclick="aplicarSugestaoIA()">↓ Aplicar nos campos</button>
-        </div>
-        <div class="fca-ai-result-body" id="fca-ai-text">—</div>
-      </div>
-
-    </div>
-    <div class="sheet-foot">
-      <button class="btn" onclick="closeFcaSheet()">Cancelar</button>
-      <button class="btn btn-acc" onclick="saveFca()" style="flex:2">✓ Salvar FCA</button>
-    </div>
-  </div>
-</div>
-
-<!-- FCA VIEW MODAL -->
-<div class="ov ov-center" id="ov-fca-view">
-  <div class="modal" style="max-width:520px">
-    <div class="modal-hd">
-      <h2 id="fca-view-title">FCA</h2>
-      <button class="mc" onclick="closeOv('ov-fca-view')">✕</button>
-    </div>
-    <div class="modal-body" style="gap:12px">
-      <div class="fca-view-section fca-fato">
-        <div class="fca-sec-hd">📌 FATO</div>
-        <div class="fca-view-text" id="fv-fato">—</div>
-      </div>
-      <div class="fca-view-section fca-causa">
-        <div class="fca-sec-hd">🔍 CAUSA</div>
-        <div class="fca-view-text" id="fv-causa">—</div>
-      </div>
-      <div class="fca-view-section fca-acao">
-        <div class="fca-sec-hd">✅ AÇÃO</div>
-        <div class="fca-view-text" id="fv-acao">—</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-grn" onclick="copyFcaView()">📋 Copiar</button>
-        <button class="fca-ai-btn" style="flex:1" onclick="refinarFcaViewIA()">✦ Refinar com IA</button>
-        <button class="btn btn-red" id="fca-del-btn" onclick="deleteFcaView()">🗑 Excluir</button>
-        <button class="btn" onclick="closeOv('ov-fca-view')">Fechar</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ALMOXARIFADO MODAL -->
 <div class="ov ov-center" id="ov-almox">
@@ -389,15 +299,7 @@ document.getElementById('btn-open-report').addEventListener('click', function() 
     }, 500);
   }
 });
-window.triggerFca = function() {
-  if (typeof window.openFcaSheet === 'function') {
-    window.openFcaSheet();
-  } else {
-    setTimeout(function() {
-      if (typeof window.openFcaSheet === 'function') window.openFcaSheet();
-    }, 800);
-  }
-};
+
 </script>
 <script type="module" src="app.js"></script>
 </body>
